@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>Anime & Manga Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three",
+        "lucide": "https://esm.sh/lucide"
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Search + category toggle -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <div class="site-logo" id="homeLogo">
+          <img src="logo/logo.png" alt="Anime &amp; Manga Hub logo" />
+        </div>
+        <h1 class="rgb-glow">Anime & Manga Hub</h1>
+      </div>
+      <div class="top-bar-right">
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="ค้นหาตามชื่อเรื่องหรือแนว..."
+          />
+          <button id="searchBtn" class="search-btn" aria-label="ค้นหา">
+            🔍
+          </button>
+        </div>
+
+        <button id="loginToggle" class="login-toggle">
+          เข้าสู่ระบบ
+        </button>
+        <button id="favoritesToggle" class="favorites-toggle" aria-label="รายการถูกใจ">
+          ❤️
+        </button>
+        <button id="categoryToggle" class="category-toggle">
+          หมวดหมู่
+        </button>
+      </div>
+    </header>
+
+    <!-- Slide-out category menu -->
+    <nav id="categoryMenu" class="category-menu">
+      <div class="category-menu-header">
+        <span>เลือกแนวอนิเมะ</span>
+        <button id="categoryClose" class="category-close">✕</button>
+      </div>
+      <ul id="categoryList"></ul>
+    </nav>
+
+    <!-- Slide-out favorites menu -->
+    <nav id="favoritesMenu" class="favorites-menu">
+      <div class="favorites-menu-header">
+        <span>รายการถูกใจ</span>
+        <button id="favoritesClose" class="favorites-close">✕</button>
+      </div>
+      <ul id="favoritesList"></ul>
+    </nav>
+
+    <!-- Overlay when menu / modal open -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Main content -->
+    <main class="content">
+      <!-- Recommended section -->
+      <section class="trending-section recommended-section" id="trendingSection">
+        <div class="trending-header">
+          <h2>อนิเมะแนะนำ</h2>
+          <div class="trending-controls">
+            <button id="trendingPrev" class="trending-nav-btn">‹</button>
+            <button id="trendingNext" class="trending-nav-btn">›</button>
+          </div>
+        </div>
+        <div class="trending-slider">
+          <div class="trending-slide" id="trendingSlide"></div>
+        </div>
+        <div class="marquee-bar">
+          <div class="marquee-inner">
+            <span>Anime &amp; Manga Hub  Anime &amp; Manga Hub  Anime &amp; Manga Hub  Anime &amp; Manga Hub  </span>
+            <span>Anime &amp; Manga Hub  Anime &amp; Manga Hub  Anime &amp; Manga Hub  Anime &amp; Manga Hub  </span>
+          </div>
+        </div>
+        <div class="trending-dots" id="trendingDots"></div>
+      </section>
+
+      
+
+      <section class="cards-section">
+        <div class="cards-header">
+          <h1 id="currentCategoryTitle">ทั้งหมด</h1>
+        </div>
+        <div id="cardsContainer" class="cards-container"></div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="site-footer" id="contactSection">
+        <div class="footer-main">
+          <!-- Brand / Logo -->
+          <div class="footer-col footer-brand">
+            <div class="footer-logo-row">
+              <div class="footer-logo">
+                <img src="cursor/chopper-cursor.png" alt="Anime &amp; Manga Hub logo" />
+              </div>
+              <div class="footer-site-title">Anime &amp; Manga Hub</div>
+            </div>
+            <p class="footer-description">
+              เว็บแนะนำอนิเมะและมังงะ แนว Anime / Tech สำหรับสายโอตะคุยุคดิจิทัล
+            </p>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="footer-col">
+            <h2 class="footer-title">Contact Info</h2>
+            <ul class="footer-list">
+              <li>
+                <span class="footer-label">Email</span>
+                <a href="mailto:khonkaen01@ovec.mail.go.th">khonkaen01@ovec.mail.go.th</a>
+              </li>
+              <li>
+                <span class="footer-label">Phone</span>
+                <a href="tel:043-221-290">043-221-290</a>
+              </li>
+              <li>
+                <span class="footer-label">Address</span>
+                <span>67 ถนนศรีจันทร์ ตำบลในเมือง อำเภอเมืองขอนแก่น จังหวัดขอนแก่น 40000 ประเทศไทย</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="footer-col">
+            <h2 class="footer-title">Quick Links</h2>
+            <ul class="footer-list footer-links">
+              <li><a href="#">เกี่ยวกับเรา (About)</a></li>
+              <li><a href="#">บริการ (Services)</a></li>
+              <li><a href="#">สินค้า (Products)</a></li>
+              <li><a href="#">ติดต่อเรา (Contact)</a></li>
+              <li><a href="#">นโยบายต่างๆ (Policy)</a></li>
+            </ul>
+          </div>
+
+          <!-- Socials -->
+          <div class="footer-col">
+            <h2 class="footer-title">Follow Us</h2>
+            <p class="footer-muted">ติดตามข่าวสารและอัปเดตใหม่ ๆ</p>
+            <div class="footer-social-list">
+              <a href="https://www.facebook.com/sirapat.sb" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Facebook">
+                <i data-lucide="facebook"></i>
+              </a>
+              <a href="https://www.instagram.com/sirapatsb/" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Instagram">
+                <i data-lucide="instagram"></i>
+              </a>
+              <a href="https://www.youtube.com/@Sirapat.0" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Youtube">
+                <i data-lucide="youtube"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>© 2025 Anime &amp; Manga Hub. All rights reserved.</span>
+          <span class="footer-bottom-accent"></span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Anime detail bottom sheet -->
+    <section id="detailSheet" class="detail-sheet">
+      <div class="detail-handle"></div>
+      <div class="detail-header">
+        <div>
+          <h2 id="detailTitle"></h2>
+          <p id="detailGenre" class="detail-genre"></p>
+          <p id="detailAverage" class="detail-average"></p>
+        </div>
+        <button id="detailClose" class="detail-close">✕</button>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-image-container">
+          <img id="detailImg" class="detail-image" src="" alt="Anime Image" />
+        </div>
+
+        <!-- รายชื่อตัวละครหลัก (Badge/Pill) อยู่ด้านบน -->
+        <div id="detailCharactersContainer" class="detail-info-section">
+          <p class="section-label">ตัวละครหลัก</p>
+          <div id="detailCharactersList" class="detail-characters-pills"></div>
+        </div>
+
+        <!-- เรื่องย่ออยู่ตรงกลาง -->
+        <div id="detailDescriptionContainer" class="detail-info-section">
+          <p class="section-label">เรื่องย่อ</p>
+          <div class="description-box">
+            <p id="detailDescription" class="detail-description"></p>
+          </div>
+        </div>
+
+        <!-- ผู้แต่งอยู่ล่างสุด -->
+        <div id="detailAuthorContainer" class="detail-author-row">
+          <span>ผู้แต่ง:</span> <span id="detailAuthor"></span>
+        </div>
+
+        <div class="detail-review-section">
+          <h3>ให้คะแนนและรีวิวเรื่องนี้</h3>
+          <div class="rating-stars" id="detailRatingStars" data-context="anime">
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
+          </div>
+          <textarea
+            id="detailReviewInput"
+            rows="3"
+            placeholder="รู้สึกอย่างไรกับอนิเมะเรื่องนี้..."
+          ></textarea>
+          <button id="detailReviewSubmit" class="primary-btn">
+            ส่งรีวิวเรื่องนี้
+          </button>
+
+          <div class="reviews-list" id="detailReviewsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Login bottom sheet -->
+    <section id="loginSheet" class="login-sheet">
+      <div class="login-handle"></div>
+      <div class="login-header">
+        <h2>เข้าสู่ระบบ</h2>
+        <button id="loginClose" class="login-close">✕</button>
+      </div>
+      <div class="login-body">
+        <div class="login-field">
+          <label for="loginUsername">ชื่อผู้ใช้</label>
+          <input
+            type="text"
+            id="loginUsername"
+            placeholder="ชื่อผู้ใช้"
+            autocomplete="username"
+          />
+        </div>
+        <div class="login-field">
+          <label for="loginPassword">รหัสผ่าน</label>
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="รหัสผ่าน"
+            autocomplete="current-password"
+          />
+        </div>
+        <div id="loginError" class="login-error"></div>
+        <button id="loginSubmit" class="primary-btn login-submit">
+          เข้าสู่ระบบ
+        </button>
+        <button id="signupOpen" class="secondary-link-btn">
+          สมัครสมาชิกใหม่
+        </button>
+      </div>
+    </section>
+
+    <!-- Signup bottom sheet -->
+    <section id="signupSheet" class="signup-sheet">
+      <div class="signup-handle"></div>
+      <div class="signup-header">
+        <h2>สมัครสมาชิก</h2>
+        <button id="signupClose" class="signup-close">✕</button>
+      </div>
+      <div class="signup-body">
+        <div class="login-field">
+          <label for="signupUsername">ชื่อผู้ใช้</label>
+          <input
+            type="text"
+            id="signupUsername"
+            placeholder="ตั้งชื่อผู้ใช้ของคุณ"
+            autocomplete="off"
+          />
+        </div>
+        <div class="login-field">
+          <label for="signupPassword">รหัสผ่าน</label>
+          <input
+            type="password"
+            id="signupPassword"
+            placeholder="ตั้งรหัสผ่าน"
+            autocomplete="new-password"
+          />
+        </div>
+        
+        <div class="login-field">
+          <label for="signupPasswordConfirm">ยืนยันรหัสผ่าน</label>
+          <input
+            type="password"
+            id="signupPasswordConfirm"
+            placeholder="พิมพ์รหัสผ่านอีกครั้ง"
+            autocomplete="new-password"
+          />
+        </div>
+        <div id="signupError" class="login-error"></div>
+        <button id="signupSubmit" class="primary-btn login-submit">
+          สมัครสมาชิก
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Floating Draggable Theme Toggle Overlay -->
+  <div id="floatingThemeToggle" class="floating-theme-toggle" title="ลากเพื่อย้าย / คลิกเพื่อเปลี่ยนธีม">☀️</div>
+
+  <script type="module" src="app.js"></script>
+  <script type="module" src="firebase.js"></script>
+
+</body>
+</html>

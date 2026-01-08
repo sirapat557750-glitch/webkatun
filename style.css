@@ -1,0 +1,2242 @@
+/* ===============================
+    GLOBAL RESET (การล้างค่าพื้นฐานเพื่อให้ทุก Browser แสดงผลตรงกัน)
+================================ */
+*,              /* เลือกทุก Element ในหน้าเว็บ */
+*::before,      /* เลือกส่วนจำลองที่สร้างขึ้นก่อน Element */
+*::after {      /* เลือกส่วนจำลองที่สร้างขึ้นหลัง Element */
+  box-sizing: border-box; /* กำหนดให้ความกว้าง/สูงที่ตั้งค่า รวม Margin และ Padding เข้าไปแล้ว (ป้องกันขนาดเพี้ยน) */
+}
+
+html, 
+body {
+  margin: 0;           /* ลบระยะขอบนอกที่ Browser มักใส่มาให้โดยอัตโนมัติ */
+  padding: 0;          /* ลบระยะห่างด้านใน */
+  height: 100%;        /* กำหนดให้ความสูงของเว็บครอบคลุม 100% ของหน้าจอ */
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;        /* เลือกใช้ฟอนต์ที่มากับระบบของผู้ใช้ เพื่อความเร็วและความสวยงาม */
+}
+
+/* ===============================
+    ROOT VARIABLES (การประกาศตัวแปรกลางสำหรับโหมดสว่าง)
+================================ */
+:root {
+  /* Footer (ส่วนท้ายของเว็บ) */
+  --footer-bg: #F5DCE0;             /* ตัวแปรสีพื้นหลัง Footer: สีขาว */
+  --footer-text: #111827;           /* ตัวแปรสีข้อความ Footer: สีดำเทา */
+  --footer-muted: #6b7280;          /* ตัวแปรสีข้อความรอง: สีเทา */
+  --footer-border: rgba(59, 130, 246, 0.16); /* ตัวแปรสีเส้นขอบ: สีฟ้าโปร่งแสง */
+  --footer-link: #1d4ed8;           /* ตัวแปรสีลิงก์: สีน้ำเงินเข้ม */
+  --footer-link-hover: #eab308;     /* ตัวแปรสีลิงก์ตอนเมาส์ชี้: สีเหลืองทอง */
+  --footer-accent: #38bdf8;         /* ตัวแปรสีเน้น: สีฟ้าสด */
+  --footer-social-bg: #e5e7eb;      /* ตัวแปรสีพื้นหลังไอคอนโซเชียล: สีเทาอ่อน */
+  --footer-social-hover-bg: #0f172a; /* ตัวแปรสีพื้นหลังไอคอนตอนเมาส์ชี้: สีน้ำเงินเข้มจัด */
+  --footer-social-hover-shadow: 0 0 0 0 rgba(56, 189, 248, 0); /* ตัวแปรเงาไอคอนตอนชี้ (เริ่มจากไม่มีเงา) */
+
+  /* Header (แถบเมนูด้านบน) */
+  --header-bg: linear-gradient(
+    to bottom,
+    #fff7ed,
+    rgba(253, 242, 248, 0.96)
+  );                                /* ตัวแปรพื้นหลัง Header: ไล่เฉดจากส้มอ่อนไปชมพูอ่อน */
+  --header-border: #fbcfe8;         /* ตัวแปรสีเส้นขอบล่าง Header: สีชมพู */
+}
+
+/* ===============================
+    THEME : LIGHT (การกำหนดค่าเมื่อใช้ธีมสว่าง)
+================================ */
+body.theme-light {
+  background: #F5DCE0;              /* สีพื้นหลังของหน้าเว็บเมื่อเป็นโหมดสว่าง: สีชมพูตุ่น */
+  color: #1e293b;                   /* สีข้อความหลัก: สีเทาเข้ม */
+
+  /* ตัวแปรสีสำหรับการ์ด (Card) ในโหมดสว่าง */
+  --card-bg: linear-gradient(135deg, #fff7ed 0%, #fdf2f8 50%, #f0f9ff 100%); /* พื้นหลังการ์ดไล่สีพาสเทล */
+  --card-border: linear-gradient(135deg, #fed7aa, #fbcfe8, #bae6fd);        /* เส้นขอบการ์ดไล่สีพาสเทล */
+  --card-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);                            /* เงาใต้การ์ดแบบจางมาก */
+  --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);                     /* เงาใต้การ์ดตอนเมาส์ชี้ (เข้มขึ้น) */
+  --card-glow: rgba(251, 146, 60, 0.15);                                    /* แสงเรืองรองสีส้ม */
+  --card-border-glow: rgba(249, 115, 22, 0.7);                              /* สีขอบตอนเรืองแสง: สีส้มเข้ม */
+  --card-title: #0f172a;            /* สีหัวข้อในการ์ด */
+  --card-accent: #f43f5e;           /* สีเน้นในการ์ด: สีแดงชมพู */
+  --card-text: #475569;             /* สีเนื้อหาตัวเล็กในการ์ด */
+  --btn-grad: linear-gradient(90deg, #f43f5e, #fb923c, #f43f5e);            /* สีปุ่มไล่เฉด: แดง-ส้ม-แดง */
+}
+
+/* ===============================
+    THEME : DARK (การกำหนดค่าเมื่อใช้ธีมมืด)
+================================ */
+body.theme-dark {
+  background: #020617;              /* สีพื้นหลังของหน้าเว็บเมื่อเป็นโหมดมืด: สีน้ำเงินดำ */
+  color: #f8fafc;                   /* สีข้อความหลัก: สีขาวเทา */
+
+  /* Header ในโหมดมืด */
+  --header-bg: linear-gradient(
+    to bottom,
+    #050505,
+    rgba(5, 5, 5, 0.96)
+  );                                /* พื้นหลัง Header: สีดำโปร่งแสง */
+  --header-border: #111;            /* เส้นขอบล่าง Header: สีดำเข้ม */
+
+  /* Footer ในโหมดมืด */
+  --footer-bg: #020617;             /* พื้นหลัง Footer: สีน้ำเงินดำ */
+  --footer-text: #e5e7eb;           /* ข้อความ Footer: สีขาวเทา */
+  --footer-muted: #9ca3af;          /* ข้อความรอง: สีเทาอ่อน */
+  --footer-border: rgba(148, 163, 184, 0.35); /* เส้นขอบ Footer */
+  --footer-link: #38bdf8;           /* สีลิงก์: สีฟ้าสด */
+  --footer-link-hover: #facc15;     /* สีลิงก์ตอนเมาส์ชี้: สีเหลืองสว่าง */
+  --footer-accent: #22d3ee;         /* สีเน้น: สีฟ้าสว่าง (Cyan) */
+  --footer-social-bg: #020617;      /* พื้นหลังไอคอนโซเชียล */
+  --footer-social-hover-bg: #0f172a; /* พื้นหลังไอคอนตอนเมาส์ชี้ */
+  --footer-social-hover-shadow: 0 0 18px 0 rgba(56, 189, 248, 0.55); /* เพิ่มแสงเรืองสีฟ้าฟุ้งๆ รอบไอคอน */
+
+  /* Card ในโหมดมืด */
+  --card-bg: linear-gradient(135deg, #1e1b4b 0%, #0f172a 60%, #1e293b 100%); /* พื้นหลังการ์ดสีน้ำเงินเข้ม */
+  --card-border: linear-gradient(135deg, #4338ca, #3b82f6, #6366f1);        /* เส้นขอบการ์ดสีน้ำเงิน-ม่วง */
+  --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);                            /* เงาหนาและมืดกว่าปกติ */
+  --card-hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);                     /* เงาหนาพิเศษเมื่อเมาส์ชี้ */
+  --card-glow: rgba(99, 102, 241, 0.25);                                    /* แสงเรืองรองสีน้ำเงินม่วง */
+  --card-border-glow: rgba(59, 130, 246, 0.8);                              /* สีขอบเรืองแสงสีฟ้าสว่าง */
+  --card-title: #ffffff;            /* สีหัวข้อในการ์ด: สีขาว */
+  --card-accent: #38bdf8;           /* สีเน้นในการ์ด: สีฟ้าสด */
+  --card-text: #cbd5e1;             /* สีเนื้อหาตัวเล็กในการ์ด: สีเทาอ่อน */
+  --btn-grad: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);            /* สีปุ่มไล่เฉด: น้ำเงิน-ม่วง-น้ำเงิน */
+}
+
+/* ===============================
+    BODY & APP (การจัดเลย์เอาต์หลัก)
+================================ */
+body {
+  overflow-y: auto;                 /* ให้หน้าเว็บสามารถเลื่อนขึ้นลงได้ตามปกติ */
+}
+
+#app {
+  min-height: 100vh;                /* ให้แอปมีความสูงอย่างน้อยเท่ากับความสูงหน้าจอ */
+  display: flex;                    /* เปิดการใช้งาน Flexbox เพื่อจัดองค์ประกอบภายใน */
+  flex-direction: column;           /* จัดองค์ประกอบให้เรียงกันจากบนลงล่าง */
+}
+
+/* ===============================
+    TOP BAR (แถบเมนูด้านบน)
+================================ */
+.top-bar {
+  position: sticky;                 /* ตรึงแถบเมนูให้ค้างอยู่ที่ด้านบนแม้เลื่อนหน้าจอลงมา */
+  top: 0;                           /* กำหนดตำแหน่งให้อยู่บนสุดพอดี */
+  z-index: 20;                      /* กำหนดเลเยอร์ความสูงให้อยู่เหนือเนื้อหาอื่นๆ ของเว็บ */
+
+  display: flex;                    /* ใช้ Flexbox จัดเรียงเนื้อหาข้างใน */
+  justify-content: space-between;   /* จัดวางเนื้อหาแยกฝั่งซ้ายและฝั่งขวา */
+  align-items: center;              /* จัดเนื้อหาให้อยู่ตรงกลางตามแนวตั้ง */
+
+  background: var(--header-bg);     /* เรียกใช้สีพื้นหลังตามธีมที่กำหนดในตัวแปร */
+  border-bottom: 1px solid var(--header-border); /* ใส่เส้นขอบล่างตามสีธีม */
+
+  padding: 12px 14px;               /* เว้นระยะห่างข้างใน: บนล่าง 12px ซ้ายขวา 14px */
+}
+
+/* ===============================
+    TOP BAR CONTENT (เนื้อหาในแถบเมนู)
+================================ */
+.top-bar-left {
+  display: flex;                    /* จัดเนื้อหาฝั่งซ้ายด้วย Flexbox */
+  align-items: center;              /* จัดให้อยู่กึ่งกลางแนวตั้ง */
+  gap: 8px;                         /* เว้นระยะห่างระหว่างโลโก้กับตัวหนังสือ 8px */
+}
+
+.site-logo {
+  height: 70px;                     /* ความสูงของรูปโลโก้ 70px */
+  max-width: 140px;                 /* ความกว้างของรูปโลโก้ห้ามเกิน 140px */
+  display: flex;                    /* ใช้ Flexbox ช่วยจัดตำแหน่งรูปภาพข้างใน */
+  align-items: center;              /* จัดรูปให้อยู่ตรงกลาง */
+  cursor: pointer;                  /* เปลี่ยนเมาส์เป็นรูปมือเพื่อสื่อว่าคลิกได้ */
+}
+
+/* ===============================
+    FOOTER (ส่วนท้ายเว็บ)
+================================ */
+.footer {
+  background: var(--footer-bg);     /* ใช้สีพื้นหลังตามตัวแปรของแต่ละธีม */
+  color: var(--footer-text);        /* ใช้สีข้อความตามตัวแปรของแต่ละธีม */
+  border-top: 1px solid var(--footer-border); /* ใส่เส้นขอบด้านบน */
+}
+
+.footer a {
+  color: var(--footer-link);        /* กำหนดสีของลิงก์ (ตัวอักษร <a>) */
+  text-decoration: none;            /* ลบเส้นใต้ลิงก์ออกเพื่อความสวยงาม */
+}
+
+.footer a:hover {
+  color: var(--footer-link-hover);  /* เปลี่ยนสีลิงก์เมื่อนำเมาส์ไปชี้ */
+}
+/* โลโก้ตอนนี้เป็น container สำหรับรูปภาพโลโก้ (Image Logo) */
+
+.site-logo img {
+  height: 100%;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* ปรับโลโก้ให้ดูคมชัดขึ้นเล็กน้อยในโหมด Dark */
+body.theme-dark .site-logo img {
+  filter: brightness(1.05) contrast(1.05);
+}
+/*เคอร์เซอร์เมา*/
+html, body {
+  cursor: url("cursor/chopper-cursor.png") 16 16, auto;
+}
+/* ตอนกดคลิก */
+html:active, body:active {
+  cursor: url("cursor/chopper-cursor.png") 16 16, auto;
+}
+html, body, * {
+  cursor: url("cursor/chopper-cursor.png") 16 16, auto !important;
+}
+
+html:active, body:active, *:active {
+  cursor: url("cursor/chopper-cursor.png") 16 16, auto !important;
+}
+/* สีของตัวหนังสือ */
+.rgb-glow {
+  font-size: 17px;
+  font-weight: 600;
+  background: linear-gradient(
+    270deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #8b00ff,
+    #ff0000
+  );
+  background-size: 600% 600%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: rgbText 6s linear infinite;
+
+  text-shadow:
+    0 0 5px rgba(255,255,255,0.4),
+    0 0 10px rgba(255,255,255,0.3),
+    0 0 20px rgba(255,0,255,0.4);
+}
+/* การไหลของสี */
+@keyframes rgbText {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+.top-bar-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 220px;
+  display: flex;
+  align-items: center;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 8px 36px 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #cccccc;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#searchInput:focus {
+  border-color: #e63946;
+}
+
+.search-btn {
+  position: absolute;
+  right: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn:hover {
+  color: #e63946;
+}
+
+body.theme-dark #searchInput {
+  border-color: #444;
+  background: rgba(10, 10, 10, 0.9);
+  color: #fff;
+}
+
+#searchInput::placeholder {
+  color: #888;
+}
+
+.theme-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 16px;
+  background: #111827;
+  color: #f9fafb;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.theme-dark .theme-toggle {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.login-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  background: #e5e7eb;
+  color: #111;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+body.theme-dark .login-toggle {
+  background: #222;
+  color: #fff;
+}
+
+.login-toggle.logged-in {
+  background: #16a34a;
+  color: #fff;
+}
+
+.login-toggle:active {
+  transform: scale(0.97);
+}
+
+.category-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  background: #e63946;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.favorites-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-size: 18px;
+  background: #f97316;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  display: none; /* ซ่อนปุ่มรายการถูกใจ */
+  align-items: center;
+  justify-content: center;
+}
+
+.favorites-toggle:active {
+  transform: scale(0.97);
+}
+
+.category-toggle:active {
+  transform: scale(0.97);
+}
+
+/* Category menu (slide from right) */
+
+.category-menu {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 260px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.98);
+  border-left: 1px solid #ddd;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 12px;
+  transition: right 0.25s ease-out;
+}
+
+body.theme-dark .category-menu {
+  background: rgba(10, 10, 10, 0.98);
+  border-left-color: #333;
+}
+
+/* Favorites menu (slide from right) */
+
+.favorites-menu {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 260px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.98);
+  border-left: 1px solid #ddd;
+  z-index: 31;
+  display: none; /* ซ่อนเมนูรายการถูกใจ */
+  flex-direction: column;
+  padding: 10px 12px;
+  transition: right 0.25s ease-out;
+}
+
+body.theme-dark .favorites-menu {
+  background: rgba(10, 10, 10, 0.98);
+  border-left-color: #333;
+}
+
+.favorites-menu.open {
+  right: 0;
+}
+
+.favorites-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+body.theme-dark .favorites-menu-header {
+  border-bottom-color: #333;
+}
+
+.favorites-close {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#favoritesList {
+  list-style: none;
+  padding: 8px 0 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+  font-size: 13px;
+}
+
+#favoritesList li {
+  padding: 8px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#favoritesList li:hover {
+  background: #f3f4f6;
+}
+
+body.theme-dark #favoritesList li:hover {
+  background: #151515;
+}
+
+.favorites-title {
+  font-weight: 600;
+}
+
+.favorites-genre {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+body.theme-dark .favorites-genre {
+  color: #f1fa8c;
+}
+
+.favorites-empty {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.category-menu.open {
+  right: 0;
+}
+
+.category-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+body.theme-dark .category-menu-header {
+  border-bottom-color: #333;
+}
+
+.category-close {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#categoryList {
+  list-style: none;
+  padding: 8px 0 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+#categoryList li {
+  padding: 10px 8px;
+  margin-bottom: 4px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+}
+
+body.theme-dark .category-icon {
+  border-color: #333;
+}
+
+.category-label {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 140px;
+}
+
+#categoryList li span.badge {
+  font-size: 11px;
+  background: #f3f4f6;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #111827;
+}
+
+body.theme-dark #categoryList li span.badge {
+  background: #222;
+  color: #f1fa8c;
+}
+
+#categoryList li:hover {
+  background: #f3f4f6;
+}
+
+body.theme-dark #categoryList li:hover {
+  background: #151515;
+}
+
+#categoryList li.active {
+  background: #e63946;
+  color: #ffffff;
+}
+
+/* Overlay */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 25;
+  transition: opacity 0.2s ease-out;
+}
+
+.overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Content */
+
+.content {
+  flex: 1;
+  padding: 8px 10px 70px;
+}
+
+/* ใช้ .recommended-section เป็น alias ของส่วนแนะนำอนิเมะ */
+.recommended-section {
+  /* ตอนนี้ใช้สไตล์เดียวกับ .trending-section */
+}
+
+.cards-section {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.cards-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 4px 2px 8px;
+}
+
+.cards-header h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Trending / Recommended */
+
+.trending-section {
+  max-width: 1180px;
+  margin: 18px auto 16px;
+  padding: 15px 14px 20px; /* ลด padding ด้านบนเพื่อให้ตัวหนังสือชิดขอบ */
+  border-radius: 14px; 
+  overflow: visible;    /* Allow medals to peak out */
+  background: radial-gradient(circle at top left, #ffe5e9 0%, #ffffff 55%);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+body.theme-dark .trending-section {
+  background: radial-gradient(circle at top left, #1f2937 0%, #050505 60%);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85);
+  border-color: rgba(248, 250, 252, 0.12);
+}
+
+/* แถบชื่อเว็บวิ่งใต้ "อนิเมะแนะนำ" */
+.marquee-bar {
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(248, 250, 252, 0.9);
+}
+
+body.theme-dark .marquee-bar {
+  border-color: #222;
+  background: rgba(15, 15, 15, 0.96);
+}
+
+.marquee-inner {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-slide 14s linear infinite;
+}
+
+.marquee-inner span {
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background-image: linear-gradient(
+    90deg,
+    rgb(255, 0, 0),
+    rgb(255, 165, 0),
+    rgb(255, 255, 0),
+    rgb(0, 128, 0),
+    rgb(0, 0, 255),
+    rgb(75, 0, 130),
+    rgb(238, 130, 238)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.theme-dark .marquee-inner span {
+  background-image: linear-gradient(
+    90deg,
+    rgb(255, 99, 132),
+    rgb(255, 206, 86),
+    rgb(75, 192, 192),
+    rgb(54, 162, 235),
+    rgb(153, 102, 255)
+  );
+}
+
+@keyframes marquee-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+
+.trending-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.trending-header h2 {
+  font-size: 18px;
+  margin: 0; /* ลบ margin บน-ล่างทั้งหมด */
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+
+/* ซ่อนปุ่มเลื่อนซ้ายขวา เพราะตอนนี้แสดง 5 การ์ดพร้อมกัน */
+.trending-controls {
+  display: none;
+  gap: 4px;
+  margin-right: 2px;
+}
+
+.trending-nav-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 16px;
+  background: #e5e7eb;
+  color: #111827;
+  cursor: pointer;
+}
+
+body.theme-dark .trending-nav-btn {
+  background: #222;
+  color: #f9fafb;
+}
+
+.trending-nav-btn:active {
+  transform: scale(0.96);
+}
+
+.trending-slider {
+  position: relative;
+  overflow: visible;
+  margin-top: 54px; /* เพิ่ม margin เพื่อดึงการ์ดและเหรียญลงมาที่ตำแหน่งเดิม */
+}
+
+.trending-slide {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ใช้คลาสแยกสำหรับ อนิเมะแนะนำ (Recommended Card) */
+.recommended-card {
+  flex: 1 1 calc(20% - 10px);
+  min-width: 180px;
+  max-width: 240px;
+  border-radius: 16px;
+  overflow: visible; /* Changed to visible for medals */
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  
+  /* Rainbow Animated Border */
+  border: 3px solid transparent;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+              linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) border-box;
+  background-size: 200% 100%;
+  animation: rainbow-move 4s linear infinite;
+}
+
+body.theme-dark .recommended-card {
+  background: linear-gradient(#111827, #111827) padding-box,
+              linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000) border-box;
+  background-size: 200% 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes rainbow-move {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+.recommended-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-dark .recommended-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+.rec-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; /* Handle clipping here instead of parent */
+  border-radius: inherit;
+  background: inherit;
+}
+
+.rec-image-box {
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 8px;
+  overflow: hidden;
+  background: #111827;
+}
+
+.rec-card-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.rec-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 20%, rgba(0, 0, 0, 0.85) 100%);
+  z-index: 1;
+}
+
+.rec-genre-tag {
+  background: #e63946;
+  color: #fff;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+.rec-info-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.rec-item-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #1f2937;
+}
+
+body.theme-dark .rec-item-title {
+  color: #f9fafb;
+}
+
+.rec-item-description {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #6b7280;
+  margin: 0 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+body.theme-dark .rec-item-description {
+  color: #9ca3af;
+}
+
+.rec-item-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 8px;
+}
+
+body.theme-dark .rec-item-footer {
+  border-top-color: rgba(255,255,255,0.05);
+}
+
+.rec-views {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.rec-action-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: #e63946;
+}
+
+body.theme-dark .rec-action-text {
+  color: #f87171;
+}
+
+
+
+.trending-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  line-height: 1.35;
+}
+
+.trending-genre {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+body.theme-dark .trending-genre {
+  color: #f1fa8c;
+}
+
+.ranking-card {
+  position: relative;
+}
+
+.medal-badge {
+  position: absolute;
+  top: -52px; /* Lifted higher above the card head */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.8em; /* Slightly larger medals for a more prominent ranking */
+  z-index: 10;
+  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.3));
+}
+
+/* จุดข้างล่าง (ถ้ามี) */
+.trending-dots {
+  display: none; /* เอาวงกลมตรงอนิเมะแนะนำออก */
+}
+
+.trending-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  background: #d1d5db;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+}
+
+body.theme-dark .trending-dot {
+  background: #333;
+}
+
+.trending-dot.active {
+  width: 16px;
+  border-radius: 999px;
+  background: #e63946;
+  transform: scale(1.05);
+}
+
+body.theme-dark .trending-dot.active {
+  background: #facc15;
+}
+
+/* Anime cards */
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.card {
+  width: 210px;
+  height: 320px;
+  background: var(--card-bg) padding-box, var(--card-border) border-box;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--card-shadow), 0 0 14px var(--card-border-glow);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-hover-shadow), 0 0 18px var(--card-border-glow), 0 0 20px var(--card-glow);
+}
+
+.card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-image-container {
+  height: 52%;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #1e293b;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+  display: block;
+}
+
+.card:hover .card-image {
+  transform: scale(1.1);
+}
+
+
+
+.card-genre {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--card-accent);
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--card-title);
+  margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-description {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--card-text);
+  line-height: 1.5;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.9;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.card-footer .stars {
+  color: #ffc107;
+  font-size: 12px;
+  text-shadow: 0 0 5px rgba(255, 193, 7, 0.2);
+}
+
+.card-footer .more {
+  background: var(--btn-grad);
+  background-size: 200% auto;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  box-shadow: 0 4px 10px var(--card-glow);
+  transition: background-position 0.4s ease, transform 0.2s ease;
+}
+
+.card:hover .card-footer .more {
+  background-position: right center;
+  transform: scale(1.05);
+}
+
+.like-btn {
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 3px 4px;
+  color: #f97316;
+  border-radius: 999px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out,
+    background-color 0.15s ease-out, color 0.15s ease-out;
+  display: none; /* ซ่อนปุ่มถูกใจบนการ์ด */
+}
+
+body.theme-dark .like-btn {
+  background: rgba(10, 10, 10, 0.9);
+}
+
+.like-btn.liked {
+  color: #ef4444;
+  background-color: #fff;
+}
+
+body.theme-dark .like-btn.liked {
+  background-color: #111;
+}
+
+.like-btn:active {
+  transform: scale(0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Contact section */
+
+.contact-section {
+  max-width: 980px;
+  margin: 16px auto 10px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+
+body.theme-dark .contact-section {
+  border-top-color: #222;
+}
+
+.contact-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.contact-group {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.contact-group h2 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-list li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.contact-list .label {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.contact-list a {
+  color: #0ea5e9;
+  text-decoration: none;
+}
+
+.contact-list a:hover {
+  text-decoration: underline;
+}
+
+body.theme-dark .contact-list a {
+  color: #38bdf8;
+}
+
+.contact-text {
+  font-size: 12px;
+  margin: 0 0 8px;
+  opacity: 0.9;
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.contact-field label {
+  margin-bottom: 4px;
+  color: #4b5563;
+}
+
+body.theme-dark .contact-field label {
+  color: #ddd;
+}
+
+.contact-field input,
+textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111;
+  padding: 7px 8px;
+  font-size: 13px;
+  resize: none;
+}
+
+body.theme-dark .contact-field input,
+body.theme-dark textarea {
+  border-color: #333;
+  background: #080808;
+  color: #fff;
+}
+
+textarea::placeholder,
+.contact-field input::placeholder {
+  color: #777;
+}
+
+.primary-btn {
+  margin-top: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  background: #e63946;
+  color: #fff;
+  cursor: pointer;
+}
+
+.primary-btn:active {
+  transform: scale(0.97);
+}
+
+.secondary-link-btn {
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: #0ea5e9;
+  font-size: 13px;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+}
+
+.secondary-link-btn:active {
+  opacity: 0.7;
+}
+
+.contact-status {
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* Reviews list (detail + site if needed) */
+
+.reviews-list {
+  margin-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.review-item {
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+body.theme-dark .review-item {
+  background: #101010;
+  border-color: #232323;
+}
+
+.review-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.review-meta span.stars {
+  color: #ffcc00;
+  font-size: 11px;
+}
+
+.review-text {
+  font-size: 12px;
+}
+
+/* Detail sheet (bottom sheet) */
+
+.detail-sheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: calc(100% - 32px); /* Ensure it doesn't touch horizontal edges */
+  max-width: 420px;
+  max-height: calc(100vh - 40px); /* Ensure it doesn't touch vertical edges */
+  background: rgba(247, 247, 247, 0.98);
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  z-index: 40;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+body.theme-dark .detail-sheet {
+  background: rgba(5, 5, 5, 0.98);
+  border-color: #333;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+}
+
+.detail-sheet.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.detail-handle {
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  background: #d1d5db;
+  margin: 6px auto 2px;
+}
+
+body.theme-dark .detail-handle {
+  background: #444;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4px 12px 6px;
+}
+
+.detail-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.detail-genre {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 2px 0 0;
+}
+
+body.theme-dark .detail-genre {
+  color: #f1fa8c;
+}
+
+.detail-close {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.detail-body {
+  padding: 6px 12px 10px;
+  overflow-y: auto;
+}
+
+.detail-image-container {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  background: #111827;
+}
+
+.detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+
+.detail-info-section {
+  margin-bottom: 16px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #e63946;
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+
+body.theme-dark .section-label {
+  color: #fca5a5;
+}
+
+/* Character Pills Style */
+.detail-characters-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.char-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+}
+
+body.theme-dark .char-badge {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+/* Description Box */
+.description-box {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+body.theme-dark .description-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255,255,255,0.05);
+}
+
+.detail-description {
+  font-size: 13.5px;
+  line-height: 1.7; /* ระยะห่างตัวอักษรที่เหมาะสม อ่านสบายตา */
+  margin: 0;
+  color: #334155;
+}
+
+body.theme-dark .detail-description {
+  color: #cbd5e1;
+}
+
+/* Author Style */
+.detail-author-row {
+  font-size: 13px;
+  color: #475569;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+body.theme-dark .detail-author-row {
+  background: #0f172a;
+  border-color: #1e293b;
+  color: #94a3b8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.detail-author-row::before {
+  content: "✍️";
+  font-size: 18px;
+}
+
+#detailAuthor {
+  font-weight: 800;
+  color: #e63946;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+body.theme-dark #detailAuthor {
+  color: #fca5a5;
+}
+
+.detail-average {
+  font-size: 11px;
+  color: #ffcc00;
+  margin: 2px 0 0;
+  opacity: 0.9;
+}
+
+.detail-review-section h3 {
+  font-size: 14px;
+  margin: 0 0 6px;
+}
+
+/* Login sheet (bottom sheet) */
+
+.login-sheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 90%;
+  max-width: 360px;
+  max-height: 70vh;
+  background: rgba(247, 247, 247, 0.98);
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+body.theme-dark .login-sheet {
+  background: rgba(5, 5, 5, 0.98);
+  border-color: #333;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+}
+
+.login-sheet.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.login-handle {
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  background: #d1d5db;
+  margin: 6px auto 2px;
+}
+
+body.theme-dark .login-handle {
+  background: #444;
+}
+
+.login-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px 6px;
+}
+
+.login-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.login-close {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.login-body {
+  padding: 6px 12px 12px;
+  overflow-y: auto;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.login-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+body.theme-dark .login-field label {
+  color: #cbd5e1;
+}
+
+.login-field input {
+  width: 100%;
+  height: 42px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  background: #ffffff;
+  color: #111;
+  padding: 0 12px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.login-field input:focus {
+  border-color: #e63946;
+  box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.15);
+}
+
+body.theme-dark .login-field input {
+  border-color: #2e2e2e;
+  background: #080808;
+  color: #fff;
+}
+
+body.theme-dark .login-field input:focus {
+  border-color: #fca5a5;
+  box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.15);
+}
+
+.login-field input::placeholder {
+  color: #777;
+}
+
+.login-error {
+  min-height: 16px;
+  font-size: 12px;
+  color: #f97373;
+  margin-top: 2px;
+}
+
+.login-submit {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Signup sheet (bottom sheet) */
+
+.signup-sheet {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 90%;
+  max-width: 360px;
+  max-height: 75vh;
+  background: rgba(247, 247, 247, 0.98);
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  z-index: 55;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+body.theme-dark .signup-sheet {
+  background: rgba(5, 5, 5, 0.98);
+  border-color: #333;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+}
+
+.signup-sheet.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.signup-handle {
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  background: #d1d5db;
+  margin: 6px auto 2px;
+}
+
+body.theme-dark .signup-handle {
+  background: #444;
+}
+
+.signup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px 6px;
+}
+
+.signup-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.signup-close {
+  border: none;
+  background: transparent;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.signup-body {
+  padding: 6px 12px 12px;
+  overflow-y: auto;
+}
+
+/* ดาวให้คะแนนรีวิว */
+.rating-stars {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.rating-stars span {
+  font-size: 18px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: color 0.15s ease-out, transform 0.1s ease-out;
+}
+
+.rating-stars span.active {
+  color: #facc15;
+}
+
+.rating-stars span.highlight {
+  color: #fbbf24;
+  transform: scale(1.1);
+}
+
+
+
+.genre-section-block {
+  width: 100%;
+  padding-top: 40px;
+  margin-bottom: 20px;
+}
+
+.genre-section-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 20px 0;
+  padding-left: 15px;
+  border-left: 6px solid #e63946;
+  color: var(--card-title);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.genre-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Category icon images per genre (HTML/JS adds icon-<id> class) */
+.category-icon.icon-isekai {
+  background-image: url("logo/logo1.png");
+}
+
+.category-icon.icon-fantasy {
+  background-image: url("logo/logo2.png");
+}
+
+.category-icon.icon-action {
+  background-image: url("logo/logo3.png");
+}
+
+.category-icon.icon-horror {
+  background-image: url("logo/logo4.png");
+}
+
+.category-icon.icon-romance {
+  background-image: url("logo/logo5.png");
+}
+
+.category-icon.icon-adventure {
+  background-image: url("logo/logo6.png");
+}
+
+.category-icon.icon-scifi {
+  background-image: url("logo/logo7.png");
+}
+
+.category-icon.icon-darkfantasy {
+  background-image: url("logo/logo8.png");
+}
+
+/* Small devices fine-tuning - Preserving Desktop Look */
+
+@media (max-width: 768px) {
+  /* MOBILE ONLY: Scale header to fit desktop items */
+  .top-bar {
+    padding: clamp(4px, 1.5vw, 8px) clamp(6px, 2vw, 10px) !important;
+    height: auto !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important; /* Allow small swipe for header if content overflows */
+  }
+
+  .site-logo {
+    height: clamp(35px, 10vw, 45px) !important;
+    max-width: clamp(70px, 20vw, 100px) !important;
+    flex-shrink: 0 !important;
+  }
+
+  .rgb-glow {
+    font-size: clamp(10px, 3vw, 12px) !important;
+    white-space: nowrap !important;
+  }
+
+  .top-bar-right {
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .search-container {
+    max-width: clamp(100px, 30vw, 150px) !important;
+  }
+
+  .search-btn {
+    display: none !important;
+  }
+
+  #searchInput {
+    padding: 4px 10px !important;
+    font-size: clamp(9px, 2.5vw, 11px) !important;
+    height: 28px !important;
+  }
+
+  .theme-toggle,
+  .login-toggle,
+  .category-toggle {
+    padding: 0 8px !important;
+    font-size: clamp(9px, 2.5vw, 11px) !important;
+    height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* MOBILE ONLY: Trending Section with Horizontal Scrolling */
+  .trending-section {
+    padding: 12px 10px 15px !important; /* ปรับให้ชิดขอบบนสำหรับมือถือ */
+    margin: 12px auto !important;
+  }
+
+  .trending-slide {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important; /* Keep medals visible on mobile scroll */
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 12px !important;
+    padding: 45px 10px 12px !important; /* เพิ่มพื้นที่ให้เหรียญรางวัลบนมือถือแทน padding ของกรอบหลัก */
+    justify-content: flex-start !important;
+  }
+
+  .recommended-card {
+    flex: 0 0 clamp(160px, 50vw, 200px) !important;
+    scroll-snap-align: start !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .rec-image-box {
+    height: clamp(90px, 25vw, 110px) !important;
+  }
+
+  .rec-item-title {
+    font-size: clamp(12px, 3.5vw, 14px) !important;
+  }
+
+  /* MOBILE ONLY: Main Grid Categories with Horizontal Scrolling */
+  .genre-cards-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 12px !important;
+    padding: 10px 5px 25px 5px !important;
+    justify-content: flex-start !important;
+  }
+
+  .card {
+    flex: 0 0 clamp(150px, 45vw, 180px) !important;
+    width: clamp(150px, 45vw, 180px) !important;
+    height: clamp(260px, 75vw, 300px) !important;
+    scroll-snap-align: start !important;
+    margin: 0 !important;
+  }
+
+  .card-image-container {
+    height: 50% !important;
+  }
+
+  .genre-section-title {
+    font-size: clamp(16px, 5vw, 20px) !important;
+    margin: 15px 0 10px 10px !important;
+  }
+
+  /* MOBILE ONLY: Scale down ranking UI */
+  .medal-badge {
+    font-size: 3em !important;
+    top: -42px !important;
+  }
+
+  .site-footer .footer-main {
+    grid-template-columns: 1fr !important;
+    padding: 10px !important;
+  }
+
+  /* MOBILE ONLY: Bottom Sheet Adjustments */
+  .detail-sheet {
+    width: 95% !important;
+    max-height: 85vh !important;
+  }
+}
+
+/* Floating Draggable Theme Toggle Styles */
+.floating-theme-toggle {
+  position: fixed;
+  bottom: 80px; /* Offset slightly from bottom to avoid covering footer on small screens initially */
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  background: var(--btn-grad);
+  background-size: 200% auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: grab;
+  z-index: 9999; /* Ensure it stays above everything */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  user-select: none;
+  touch-action: none; /* Critical for mobile drag to prevent page scroll */
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  font-family: "Apple Color Emoji",
+               "Segoe UI Emoji",
+               "Noto Color Emoji",
+               system-ui;
+
+}
+
+.floating-theme-toggle:active {
+  cursor: grabbing;
+  transform: scale(0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.theme-dark .floating-theme-toggle {
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+/* Hide scrollbars on WebKit for a cleaner look */
+.reviews-list::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#categoryList::-webkit-scrollbar,
+.detail-body::-webkit-scrollbar,
+.login-body::-webkit-scrollbar,
+.signup-body::-webkit-scrollbar,
+.trending-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#categoryList::-webkit-scrollbar-thumb,
+.detail-body::-webkit-scrollbar-thumb,
+.login-body::-webkit-scrollbar-thumb,
+.signup-body::-webkit-scrollbar-thumb,
+.trending-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+
+body.theme-dark .reviews-list::-webkit-scrollbar-thumb,
+body.theme-dark body::-webkit-scrollbar-thumb,
+body.theme-dark #categoryList::-webkit-scrollbar-thumb,
+body.theme-dark .detail-body::-webkit-scrollbar-thumb,
+body.theme-dark .login-body::-webkit-scrollbar-thumb,
+body.theme-dark .signup-body::-webkit-scrollbar-thumb,
+body.theme-dark .trending-list::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+/* Footer */
+
+.site-footer {
+  margin-top: 18px;
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  border-top: 1px solid var(--footer-border);
+  padding: 18px 12px 10px;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.site-footer .footer-main {
+  max-width: 1100px;
+  margin: 0 auto 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.footer-col {
+  min-width: 0;
+  font-size: 13px;
+}
+
+.footer-brand {
+  max-width: 280px;
+}
+
+.footer-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.footer-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: radial-gradient(circle at 20% 0, #f97316 0, #e11d48 45%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.footer-logo img {
+  width: 37px;
+  height: 37px;
+  object-fit: contain;
+  display: block;
+}
+
+.footer-site-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.footer-description {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--footer-muted);
+}
+
+.footer-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  border-bottom: 1px solid var(--footer-border);
+  padding-bottom: 4px;
+}
+
+.footer-muted {
+  font-size: 12px;
+  color: var(--footer-muted);
+  margin: 0 0 6px;
+}
+
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-list li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.footer-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--footer-muted);
+}
+
+.footer-list a {
+  color: var(--footer-link);
+  text-decoration: none;
+  font-size: 13px;
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+}
+
+.footer-list a:hover {
+  color: var(--footer-link-hover);
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
+}
+
+body.theme-dark .footer-list a:hover {
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+.footer-links li a::before {
+  content: "› ";
+  opacity: 0.75;
+}
+
+.footer-social-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.footer-social-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--footer-social-bg);
+  border: 1px solid var(--footer-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--footer-text);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.12s ease;
+}
+
+.footer-social-icon i {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.footer-social-icon:hover {
+  background: var(--footer-social-hover-bg);
+  color: var(--footer-accent);
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: var(--footer-social-hover-shadow);
+}
+
+.footer-bottom {
+  max-width: 1100px;
+  margin: 6px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--footer-border);
+  font-size: 11px;
+  color: var(--footer-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.footer-bottom-accent {
+  color: var(--footer-accent);
+}
+
+/* Footer responsive */
+@media (max-width: 900px) {
+  .site-footer .footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .site-footer {
+    padding-inline: 10px;
+  }
+
+  .site-footer .footer-main {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-brand {
+    max-width: none;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
