@@ -1154,7 +1154,7 @@ function renderAnimeReviews() { // ฟังก์ชันหลักสำห
   detailReviewsList.innerHTML = ""; // ล้างรายการรีวิวเก่าที่ค้างอยู่ในหน้าต่างรายละเอียดออกให้หมดก่อน
   if (!currentDetailKey) return; // ถ้าไม่ได้ระบุว่ากำลังดูเรื่องอะไรอยู่ (ไม่มี Key) ให้หยุดทำงานทันที
   const list = animeReviews[currentDetailKey] || []; // ดึงข้อมูลรีวิวจาก Object ตามคีย์อนิเมะ ถ้าไม่มีข้อมูลให้ใช้เป็นอาเรย์ว่าง
-  list.forEach((r) => { // เริ่มวนลูปเพื่อสร้างกล่องข้อความรีวิวทีละอันจากข้อมูลที่มี
+  list.forEach((r, index) => { // เริ่มวนลูปเพื่อสร้างกล่องข้อความรีวิวทีละอันจากข้อมูลที่มี
     const item = document.createElement("div"); // สร้าง Tag div เพื่อใช้เป็นคอนเทนเนอร์หลักของหนึ่งรีวิว
     item.className = "review-item"; // กำหนด Class ชื่อ review-item เพื่อใช้จัดระเบียบและสไตล์ CSS
 
@@ -1171,12 +1171,56 @@ function renderAnimeReviews() { // ฟังก์ชันหลักสำห
     meta.appendChild(stars); // นำส่วนดาวใส่เข้าไปในกล่องข้อมูลส่วนหัว
     meta.appendChild(label); // นำชื่อผู้ใช้ใส่เข้าไปต่อท้ายดาวในกล่องข้อมูลส่วนหัว
 
-    const text = document.createElement("div"); // สร้าง Tag div สำหรับแสดงเนื้อหาข้อความที่รีวิว
-    text.className = "review-text"; // กำหนด Class เพื่อใช้จัดการเว้นวรรคและขนาดตัวอักษรของเนื้อหา
-    text.textContent = r.text; // ใส่ข้อความรีวิวจริงที่ผู้ใช้พิมพ์ไว้ลงไป
+    const textContainer = document.createElement("div"); // สร้าง Tag div สำหรับแสดงเนื้อหาข้อความที่รีวิว
+    textContainer.className = "review-text"; // กำหนด Class เพื่อใช้จัดการเว้นวรรคและขนาดตัวอักษรของเนื้อหา
+    textContainer.textContent = r.text; // ใส่ข้อความรีวิวจริงที่ผู้ใช้พิมพ์ไว้ลงไป
+
+    // Review Menu (ปุ่ม 3 ขีด)
+    const menuContainer = document.createElement("div");
+    menuContainer.className = "review-menu-container";
+    
+    const menuBtn = document.createElement("button");
+    menuBtn.className = "review-menu-btn";
+    menuBtn.innerHTML = "⋮";
+    
+    const dropdown = document.createElement("div");
+    dropdown.className = "review-dropdown";
+    
+    const editOpt = document.createElement("div");
+    editOpt.className = "dropdown-item";
+    editOpt.innerHTML = "✏️ แก้ไข";
+    editOpt.onclick = (e) => {
+      e.stopPropagation();
+      dropdown.classList.remove("show");
+      startEditReview(item, textContainer, index);
+    };
+
+    const deleteOpt = document.createElement("div");
+    deleteOpt.className = "dropdown-item delete";
+    deleteOpt.innerHTML = "🗑️ ลบ";
+    deleteOpt.onclick = (e) => {
+      e.stopPropagation();
+      dropdown.classList.remove("show");
+      deleteReview(index);
+    };
+
+    menuBtn.onclick = (e) => {
+      e.stopPropagation();
+      // Close all other dropdowns first
+      document.querySelectorAll('.review-dropdown').forEach(d => {
+        if(d !== dropdown) d.classList.remove("show");
+      });
+      dropdown.classList.toggle("show");
+    };
+
+    dropdown.appendChild(editOpt);
+    dropdown.appendChild(deleteOpt);
+    menuContainer.appendChild(menuBtn);
+    menuContainer.appendChild(dropdown);
 
     item.appendChild(meta); // นำข้อมูลส่วนหัว (ดาว+ชื่อ) ใส่เข้าไปในกล่องรีวิวหลัก
-    item.appendChild(text); // นำข้อความรีวิวใส่ตามลงไปในกล่องรีวิวหลัก
+    item.appendChild(textContainer); // นำข้อความรีวิวใส่ตามลงไปในกล่องรีวิวหลัก
+    item.appendChild(menuContainer); // นำเมนูใส่เข้าไปในกล่องรีวิว
 
     detailReviewsList.appendChild(item); // นำกล่องรีวิวที่สร้างสมบูรณ์แล้วไปแสดงผลในหน้าต่างรายละเอียดบนเว็บไซต์
   }); // จบการวนลูปสร้างรีวิว
@@ -1188,6 +1232,58 @@ function renderAnimeReviews() { // ฟังก์ชันหลักสำห
    detailAverage.textContent = buildRatingLabel(avg, count); // นำข้อความคะแนนที่สร้างใหม่ (เช่น "4.8 (15 รีวิว)") ไปเปลี่ยนบนหน้าจอ
  } // ปิดการทำงานในส่วนอัปเดตคะแนนเฉลี่ย
 }
+
+// Helper functions for Review Edit/Delete
+function startEditReview(itemEl, textEl, index) {
+  const originalText = animeReviews[currentDetailKey][index].text;
+  const originalContent = textEl.innerHTML;
+  
+  textEl.innerHTML = "";
+  
+  const textarea = document.createElement("textarea");
+  textarea.className = "review-edit-area";
+  textarea.value = originalText;
+  
+  const actions = document.createElement("div");
+  actions.className = "edit-actions";
+  
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "edit-btn edit-btn-save";
+  saveBtn.textContent = "บันทึก";
+  saveBtn.onclick = () => {
+    const newText = textarea.value.trim();
+    if (newText) {
+      animeReviews[currentDetailKey][index].text = newText;
+      renderAnimeReviews();
+    }
+  };
+  
+  const cancelBtn = document.createElement("button");
+  cancelBtn.className = "edit-btn edit-btn-cancel";
+  cancelBtn.textContent = "ยกเลิก";
+  cancelBtn.onclick = () => {
+    renderAnimeReviews();
+  };
+  
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+  textEl.appendChild(textarea);
+  textEl.appendChild(actions);
+  textarea.focus();
+}
+
+function deleteReview(index) {
+  if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรีวิวนี้?")) {
+    animeReviews[currentDetailKey].splice(index, 1);
+    renderAnimeReviews();
+    renderCards(); // Update star average on grid
+  }
+}
+
+// Global click listener to close dropdowns
+window.addEventListener("click", () => {
+  document.querySelectorAll('.review-dropdown').forEach(d => d.classList.remove("show"));
+});
 
 // ส่วนเริ่มต้น (Initialization)
 let siteRatingValue = 0; // ประกาศตัวแปรเก็บคะแนนรีวิวเว็บไซต์เริ่มต้นที่ 0
@@ -1241,6 +1337,15 @@ categoryToggle.addEventListener("click", () => { // เมื่อคลิก�
 categoryClose.addEventListener("click", () => { // เมื่อคลิกที่ปุ่มปิดเมนูหมวดหมู่ (เครื่องหมาย X)
   closeCategoryMenu(); // เรียกใช้ฟังก์ชันเพื่อซ่อนเมนูหมวดหมู่
 }); // จบเหตุการณ์คลิกปุ่มปิดหมวดหมู่
+
+// เพิ่มเหตุการณ์เมื่อคลิกเลือกหมวดหมู่ในเมนู
+categoryListEl.addEventListener("click", (e) => {
+  const li = e.target.closest("li"); // หา element li ที่ถูกคลิก (หรือลูกของมัน)
+  if (li && li.dataset.id) {
+    setCategory(li.dataset.id); // เปลี่ยนหมวดหมู่ตาม id ที่เก็บไว้ใน dataset
+    closeCategoryMenu(); // ปิดเมนูหลังจากเลือกเสร็จ
+  }
+});
 
 favoritesToggle.addEventListener("click", () => { // เมื่อคลิกที่ปุ่มรายการโปรด (รูปหัวใจ)
   // สลับมุมมองการแสดงผลระหว่างหน้า "ทั้งหมด" กับหน้า "รายการที่ถูกใจ"
