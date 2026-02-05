@@ -1438,9 +1438,9 @@ body.theme-dark .review-edit-area {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.9);
+  transform: translate(-50%, -50%) scale(0.98);
   width: calc(100% - 32px); /* Ensure it doesn't touch horizontal edges */
-  max-width: 420px;
+  max-width: 720px; /* allow larger modal on desktop while keeping centered */
   max-height: calc(100vh - 40px); /* Ensure it doesn't touch vertical edges */
   background: rgba(247, 247, 247, 0.98);
   border-radius: 18px;
@@ -1452,6 +1452,8 @@ body.theme-dark .review-edit-area {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+  /* allow modal content to scroll when content (like a tall image) exceeds viewport */
+  overflow: auto;
 }
 
 body.theme-dark .detail-sheet {
@@ -1515,18 +1517,19 @@ body.theme-dark .detail-genre {
 
 .detail-image-container {
   width: 100%;
-  height: 220px;
-  border-radius: 12px;
-  overflow: hidden;
+  /* Let the image keep its natural aspect ratio: container will size by image height */
+  border-radius: 12px 12px 0 0;
+  overflow: visible; /* allow the image to extend if tall; modal will scroll */
   margin-bottom: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
   background: #111827;
+  flex: 0 0 auto;
 }
 
 .detail-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;           /* preserve natural aspect ratio */
+  object-fit: contain;    /* do not crop, fit the entire image within width */
   display: block;
 }
 
@@ -1993,6 +1996,30 @@ body.theme-dark .signup-handle {
     gap: 12px !important;
     padding: 10px 5px 25px 5px !important;
     justify-content: flex-start !important;
+  }
+
+  /* When viewing a single category on mobile, use a wrapped grid like desktop */
+  body.category-mobile-grid .genre-cards-grid {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    scroll-snap-type: none !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 6px 6px 20px 6px !important;
+  }
+
+  /* Use more PC-like card sizing when wrapped on mobile category view */
+  body.category-mobile-grid .card {
+    flex: 1 1 calc(45% - 12px) !important;
+    width: calc(45% - 12px) !important;
+    margin: 6px !important;
+  }
+
+  @media (max-width: 420px) {
+    body.category-mobile-grid .card {
+      flex: 1 1 calc(100% - 12px) !important;
+      width: calc(100% - 12px) !important;
+    }
   }
 
   .card {
