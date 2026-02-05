@@ -9,7 +9,7 @@ const genres = [
         author: "Rifujin na Magonote",
         characters: ["รูเดียส เกรย์แรท", "ร็อกซี่ มิเกอร์เดีย", "ซิลฟีเอ็ต", "เอริส โบเรอัส เกรย์แรท"],
         description: "เรื่องราวของหนุ่มตกอับวัย 34 ปี ที่ได้ไปเกิดใหม่ในโลกแฟนตาซีที่มีเวทมนตร์และดาบ เขาสาบานว่าจะใช้ชีวิตใหม่ให้ดีที่สุด",
-        image: "isekai/Jobless Reincarnation.jpg",
+        image: "isekai/Mushoku Tensei.jpg",
       },
       {
          title: "Re:Zero",
@@ -272,12 +272,12 @@ const genres = [
     image: "Horror/Hell Girl.jpg"
 },
       {
-    title: "Mob Psycho 100",
-    author: "ONE",
-    characters: ["คาเกยาม่า ชิเกโอะ (ม็อบ)", "เรเก็น อาราตากะ", "เอคุโบะ", "คาเกยาม่า ริตสึ", "ฮานาซาว่า เทรุกิ"],
-    description: "เด็กหนุ่มผู้มีพลังจิตมหาศาลที่พยายามใช้ชีวิตอย่างถ่อมตัวและควบคุมอารมณ์ไม่ให้ระเบิดถึง 100% เขาทำงานพาร์ทไทม์เป็นผู้ช่วยของอาจารย์กำมะลอเพื่อเรียนรู้วิธีการใช้ชีวิตแบบคนปกติท่ามกลางเหตุการณ์เหนือธรรมชาติ",
-    image: "Horror/Mob Psycho 100.jpg"
-},
+      title: "Jigoku Sensei Nube",
+      author: "Sho Makura / Takeshi Okano",
+      characters: ["นูโนะฮาชิ เมอิสุเกะ (นูเบ)", "ทาคาฮาชิ ริทึโกะ", "โฮโซคาวะ มิกิ", "อินาบะ เคียวโกะ", "ทามะโม่"],
+      description: "เรื่องราวของครูประถมผู้มีมือซ้ายเป็นมืออสูร ที่ต้องใช้พลังวิญญาณเข้าต่อสู้กับเหล่าภูตผีปีศาจเพื่อปกป้องเหล่านักเรียนในโรงเรียนประถมโดโมริ",
+      image: "Horror/Jigoku Sensei Nube.jpg"
+    },
       {
     title: "Death Note",
     author: "Tsugumi Ohba (Story), Takeshi Obata (Art)",
@@ -419,11 +419,11 @@ const genres = [
     image: "Adventure/Vinland Saga.jpg"
 },
      {
-    title: "Golden Kamuy",
-    author: "Satoru Noda",
-    characters: ["สุกิโมโตะ ไซจิ", "อาชิริปะ", "ชิราอิชิ โยชิทากะ", "สิบโทซึรุมิ", "ฮิจิคาตะ โทชิโซ"],
-    description: "การผจญภัยในฮอกไกโดเพื่อตามหาขุมทรัพย์ทองคำที่ซ่อนอยู่ ผ่านเบาะแสรอยสักบนร่างของเหล่านักโทษประหาร เป็นการร่วมมือกันของทหารผ่านศึก 'สุกิโมโตะผู้ไม่ตาย' และเด็กสาวชาวไอนุ 'อาชิริปะ'",
-    image: "Adventure/Golden Kamuy.jpg"
+  title: "Pokémon",
+  author: "Satoshi Tajiri / Game Freak",
+  characters: ["ซาโตชิ", "พิคาชู", "คาสึมิ", "ทาเคชิ", "แก๊งร็อคเก็ต"],
+  description: "การผจญภัยของเหล่าเทรนเนอร์ที่ออกเดินทางร่วมกับโปเกมอนคู่ใจ เพื่อสะสมเข็มกลัดยิมและมุ่งสู่การเป็นโปเกมอนมาสเตอร์ระดับโลก",
+  image: "Adventure/Pokemon.jpg"
 },
       {
     title: "Dr. Stone",
@@ -457,6 +457,84 @@ const genres = [
   },
 
 ];
+
+/* Added Sports genre */
+genres.push({
+  id: "Sports",
+  name: "กีฬา (Sports)",
+  items: [
+    {
+      title: "Haikyuu",
+      author: "Haruichi Furudate",
+      characters: ["ชโยโอะ Hinata", "โทบิโอะ Kageyama", "ทาดาชิ Sawamura", "โคชิ ผู้นำทีม"],
+      description: "ทีมวอลเลย์บอลโรงเรียนคาราสึโนะต่อสู้เพื่อไต่เต้าสู่ระดับชาติด้วยจิตวิญญาณและการฝึกฝนอันหนักหน่วง",
+      image: "Sports/Haikyuu.jpg"
+    },
+    {
+      title: "Kuroko's Basketball",
+      author: "Tadatoshi Fujimaki",
+      characters: ["เท็ตสึยะ คุโรกะ", "ไทกะ คางามิ", "เรย์ มาจิบะ", "ชินโงะ โนะมุระ"],
+      description: "เรื่องราวบาสเกตบอลโรงเรียนที่รวบรวมผู้เล่นสุดยอดและแผนการเล่นที่ล้ำลึกเพื่อพิชิตสนาม",
+      image: "Sports/Kuroko's Basketball.jpg"
+    },
+    {
+      title: "Yuri!!! on Ice",
+      author: "Sayo Yamamoto",
+      characters: ["ยูริ ก้าวหน้าจากญี่ปุ่น", "วิคเตอร์ นิคิฟอรว์", "ยูริ ปรามบีร์"],
+      description: "การไล่ตามความฝันของนักสเก็ตลีลา ท่ามกลางความสัมพันธ์และการแข่งขันระดับโลก",
+      image: "Sports/Yuri on Ice.jpg"
+    },
+    {
+      title: "Run with the Wind",
+      author: "Shion Miura",
+      characters: ["คากามิ", "คุซากะ", "โคยามะ", "คาวาชิมะ"],
+      description: "นักวิ่งมหาวิทยาลัยรวมตัวกันเพื่อไล่ตามความฝันและท้าทายมาราธอนระดับชาติ",
+      image: "Sports/Run with the Wind.jpg"
+    },
+    {
+      title: "Eyeshield 21",
+      author: "Riichiro Inagaki",
+      characters: ["เซย์ยะ อาเมมาโตะ (เดม่อน)", "เซโตะ โนะโนะฮาระ", "เทมะ ซากุระ"],
+      description: "เรื่องราวอเมริกันฟุตบอลของโรงเรียนมัธยมที่เต็มไปด้วยแทคติกและการเติบโตของทีม",
+      image: "Sports/Eyeshield 21.jpg"
+    },
+    {
+      title: "Blue Lock",
+      author: "Muneyuki Kaneshiro (Story), Yusuke Nomura (Art)",
+      characters: ["ริน", "อิซางิ", "บาจิระ"], // placeholder localized names if desired
+      description: "โครงการสุดโหดเพื่อสร้างกองหน้าที่ดีที่สุดของญี่ปุ่นโดยรวบรวมผู้เล่นดาวรุ่งและผลักดันพวกเขาให้แข่งกันจนสุดตัว",
+      image: "Sports/Blue Lock.jpg"
+    },
+    {
+      title: "Inazuma Eleven",
+      author: "Level-5 / Tenya Yabuno",
+      characters: ["เอนโด มามุโระ", "โกเอนจิ ชูยะ", "คิโด ยูเซ"], // localized placeholders
+      description: "ทีมฟุตบอลนักเรียนม.ต้นที่ต้องร่วมมือและฝึกฝนเพื่อปกป้องโรงเรียนและพิชิตสนามแข่งระดับโลกด้วยท่าไม้ตายสุดพิลึก",
+      image: "Sports/Inazuma Eleven.jpg"
+    },
+    {
+      title: "Hajime no Ippo",
+      author: "George Morikawa",
+      characters: ["อิปโปะ มาโตซึซาคิ", "คะมิยะ", "มาโจ"], // localized placeholders
+      description: "เรื่องราวการเติบโตของนักชกรุ่นเยาว์ที่เริ่มจากการโดนรังแก จนกลายเป็นนักชกที่ตั้งใจจะค้นหาความหมายของชัยชนะ",
+      image: "Sports/Hajime no Ippo.jpg"
+    },
+    {
+      title: "Aoashi",
+      author: "Yuugo Kobayashi",
+      characters: ["อาชิ", "โอโนะ", "โค้ช"], // localized placeholders
+      description: "ละครฟุตบอลเยาวชนที่ติดตามการฝึกฝนและการพัฒนาของนักเตะหน้าใหม่ในระบบทีมสโมสรเยาวชนญี่ปุ่น",
+      image: "Sports/Aoashi.jpg"
+    },
+    {
+      title: "Initial D",
+      author: "Shuichi Shigeno",
+      characters: ["ทากุมิ ฟูจิวาระ", "เคซิเก๊ะ", "เรียวสุเก๊ะ"], // localized placeholders
+      description: "ตำนานการแข่งรถบนเส้นทางภูเขา (drift) ที่ติดตามการเติบโตของคนขับหนุ่มและทักษะการแข่งแบบไดนามิก",
+      image: "Sports/Initial D.jpg"
+    }
+  ]
+});
 
 // Helper: flatten items for search
 const allItems = genres.flatMap((g) => // สร้างอาเรย์ใหม่ที่รวมอนิเมะจากทุกหมวดหมู่เข้าด้วยกันเพื่อให้ค้นหาง่ายขึ้น
