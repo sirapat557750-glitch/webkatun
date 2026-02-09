@@ -478,7 +478,7 @@ genres.push({
       image: "Sports/Kuroko's Basketball.jpg"
     },
     {
-      title: "Yuri!!! on Ice",
+      title: "Yuri on Ice",
       author: "Sayo Yamamoto",
       characters: ["ยูริ ก้าวหน้าจากญี่ปุ่น", "วิคเตอร์ นิคิฟอรว์", "ยูริ ปรามบีร์"],
       description: "การไล่ตามความฝันของนักสเก็ตลีลา ท่ามกลางความสัมพันธ์และการแข่งขันระดับโลก",
@@ -823,6 +823,20 @@ function getFilteredItems() { // ฟังก์ชันสำหรับก�
   return base;
 } 
 
+// Smooth scroll helper: scroll the main viewport to top smoothly when views change
+function smoothScrollTop() {
+  try {
+    // prefer smooth behavior when supported
+    if ('scrollBehavior' in document.documentElement.style) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  } catch (e) {
+    window.scrollTo(0, 0);
+  }
+}
+
 // --- ระบบถูกใจ (isFavorite, toggleFavorite, renderFavoritesMenu) ถูกนำออกแล้วตามคำขอ ---
 
 function createCardElement(item) { // ฟังก์ชันสำหรับสร้างโครงสร้าง HTML ของการ์ดอนิเมะแต่ละเรื่อง
@@ -1030,6 +1044,7 @@ function performSearch() { // ฟังก์ชันหลักในกา�
     // คืนค่าหัวข้อตามหมวดหมู่ที่เลือกอยู่ (ถ้าเป็น all ให้โชว์ "ทั้งหมด" ถ้าไม่ใช่ให้หาชื่อจาก genres)
     currentCategoryTitle.textContent = currentCategoryId === "all" ? "ทั้งหมด" : (genres.find(g => g.id === currentCategoryId)?.name || "ทั้งหมด"); // ตั้งชื่อหัวข้อให้กลับมาเป็นชื่อหมวดหมู่เดิม
     renderCards(); // วาดการ์ดอนิเมะใหม่ตามโหมดปกติ
+    smoothScrollTop();
     return; // จบการทำงานของฟังก์ชันทันที
   } // จบเงื่อนไขช่องค้นหาว่าง
 
@@ -1050,6 +1065,7 @@ function performSearch() { // ฟังก์ชันหลักในกา�
  } // จบเงื่อนไขการตรวจสอบหมวดหมู่
 
  renderCards(); // เรียกใช้ฟังก์ชันแสดงผลการ์ดใหม่เพื่อโชว์ผลลัพธ์ที่ตรงตามคำค้นหา
+ smoothScrollTop();
 } // จบฟังก์ชัน performSearch
 
 function setCategory(id) { // ฟังก์ชันสำหรับเปลี่ยนหมวดหมู่เมื่อผู้ใช้คลิกเลือกจากเมนู
@@ -1079,6 +1095,8 @@ function setCategory(id) { // ฟังก์ชันสำหรับเป�
       : genres.find((g) => g.id === id)?.name || "ทั้งหมด"; // ถ้าไม่ใช่ ให้ไปหาชื่อหมวดหมู่จากข้อมูล genres มาแสดง (ถ้าไม่เจอให้ใช้ "ทั้งหมด")
 
   renderCards(); // เรียกใช้ฟังก์ชันวาดการ์ดอนิเมะใหม่ เพื่อให้แสดงเฉพาะเรื่องที่อยู่ในหมวดหมู่ที่เลือก
+  // Smooth-scroll to top so user sees new category from the top
+  smoothScrollTop();
 } // จบฟังก์ชัน setCategory
 
 // ฟังก์ชันสำหรับตั้งค่าระบบดาว (รับคอนเทนเนอร์ และฟังก์ชันที่จะให้ทำงานเมื่อค่าเปลี่ยน)
@@ -1437,6 +1455,7 @@ favoritesToggle.addEventListener("click", () => { // เมื่อคลิก
     currentCategoryId = "all"; // ตั้งค่าไอดีหมวดหมู่เป็น all เพื่อดึงข้อมูลที่ถูกใจจากทุกหมวดมาโชว์
   } // จบเงื่อนไขการสลับมุมมอง
   renderCards(); // สั่งให้วาดการ์ดอนิเมะใหม่ตามมุมมองที่เพิ่งสลับไป
+  smoothScrollTop();
 }); // จบเหตุการณ์คลิกปุ่มสลับหน้าโปรด
 
 favoritesClose.addEventListener("click", () => { // เมื่อคลิกที่ปุ่มปิดเมนูรายการโปรด
