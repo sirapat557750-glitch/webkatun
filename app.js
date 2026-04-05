@@ -1680,18 +1680,31 @@ detailClose.addEventListener("click", () => {
   closeDetail(); // เรียกใช้ฟังก์ชันปิดหน้ารายละเอียดและเคลียร์ Overlay
 });
 
-// นำเข้าไอคอนจากไลบรารี Lucide (ต้องมีการติดตั้งหรือดึง CDN ของ Lucide มาก่อน)
-import { createIcons, Facebook, Instagram, Twitter, Youtube } from 'lucide';
+/*
+  Lucide icon import removed to avoid runtime importmap/module issues in the browser environment.
+  Provide a lightweight fallback that replaces elements with data-lucide attributes
+  by inserting simple emoji/SVG placeholders so the page icons render and app.js doesn't fail.
+*/
+(function replaceLucideFallback() {
+  const icoMap = {
+    facebook: '📘',
+    instagram: '📸',
+    twitter: '🐦',
+    youtube: '🎥'
+  };
 
-// --- เริ่มต้นการแสดงผลครั้งแรก (Initial Render) ---
-createIcons({ // สั่งให้ Lucide ตรวจหา element ในหน้าเว็บและแทนที่ด้วยไอคอน SVG
-  icons: {
-    Facebook,
-    Instagram,
-    Twitter,
-    Youtube
-  }
-});
+  document.querySelectorAll('[data-lucide]').forEach((el) => {
+    const name = (el.getAttribute('data-lucide') || '').toLowerCase();
+    const placeholder = icoMap[name] || '';
+    // prefer inserting an inline SVG-like span for consistent styling
+    const span = document.createElement('span');
+    span.className = 'lucide-fallback';
+    span.textContent = placeholder;
+    // Clear existing children and insert placeholder
+    el.innerHTML = '';
+    el.appendChild(span);
+  });
+})();
 
 renderCategoryMenu(); // วาดเมนูหมวดหมู่ที่ด้านข้าง
 renderCards();        // วาดการ์ดอนิเมะทั้งหมดในหน้าหลัก
