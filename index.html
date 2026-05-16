@@ -261,85 +261,104 @@
       </div>
     </section>
 
-    <!-- Login bottom sheet -->
-    <section id="loginSheet" class="login-sheet">
-      <div class="login-handle"></div>
-      <div class="login-header">
-        <h2>เข้าสู่ระบบ</h2>
-        <button id="loginClose" class="login-close">✕</button>
-      </div>
-      <div class="login-body">
-        <div class="login-field">
-          <label for="loginUsername">ชื่อผู้ใช้</label>
-          <input
-            type="text"
-            id="loginUsername"
-            placeholder="ชื่อผู้ใช้"
-            autocomplete="username"
-          />
-        </div>
-        <div class="login-field">
-          <label for="loginPassword">รหัสผ่าน</label>
-          <input
-            type="password"
-            id="loginPassword"
-            placeholder="รหัสผ่าน"
-            autocomplete="current-password"
-          />
-        </div>
-        <div id="loginError" class="login-error"></div>
-        <button id="loginSubmit" class="primary-btn login-submit">
-          เข้าสู่ระบบ
-        </button>
-        <button id="signupOpen" class="secondary-link-btn">
-          สมัครสมาชิกใหม่
-        </button>
-      </div>
-    </section>
+    <!-- Unified Auth Modal -->
+    <div id="authModal" class="auth-modal" role="dialog" aria-modal="true">
+      <div class="auth-modal-card">
 
-    <!-- Signup bottom sheet -->
-    <section id="signupSheet" class="signup-sheet">
-      <div class="signup-handle"></div>
-      <div class="signup-header">
-        <h2>สมัครสมาชิก</h2>
-        <button id="signupClose" class="signup-close">✕</button>
+        <!-- VIEW: LOGIN -->
+        <div id="authViewLogin" class="auth-view active">
+          <div class="auth-modal-header">
+            <div class="auth-modal-logo">🎌</div>
+            <h2>เข้าสู่ระบบ</h2>
+            <p class="auth-modal-sub">ยินดีต้อนรับกลับมา!</p>
+            <button class="auth-close-btn" id="authClose">✕</button>
+          </div>
+          <div class="auth-modal-body">
+            <button id="googleLoginBtn" class="auth-google-btn">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
+              เข้าสู่ระบบด้วย Google
+            </button>
+            <div class="auth-divider"><span>หรือ</span></div>
+            <div class="auth-field">
+              <label for="loginUsername">ชื่อผู้ใช้</label>
+              <input type="text" id="loginUsername" placeholder="ชื่อผู้ใช้ของคุณ" autocomplete="username" />
+            </div>
+            <div class="auth-field">
+              <label for="loginPassword">รหัสผ่าน</label>
+              <input type="password" id="loginPassword" placeholder="รหัสผ่าน" autocomplete="current-password" />
+            </div>
+            <div id="loginError" class="auth-error"></div>
+            <button id="loginSubmit" class="auth-primary-btn">เข้าสู่ระบบ</button>
+            <div class="auth-footer-links">
+              <button class="auth-text-btn" id="forgotPasswordBtn">ลืมรหัสผ่าน?</button>
+              <button class="auth-text-btn auth-text-btn--accent" id="signupOpen">สมัครสมาชิกใหม่ →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW: SIGNUP -->
+        <div id="authViewSignup" class="auth-view">
+          <div class="auth-modal-header">
+            <button class="auth-back-btn" id="signupBack">← ย้อนกลับ</button>
+            <div class="auth-modal-logo">✨</div>
+            <h2>สมัครสมาชิก</h2>
+            <p class="auth-modal-sub">สร้างบัญชีใหม่ได้เลย</p>
+            <button class="auth-close-btn" id="signupClose">✕</button>
+          </div>
+          <div class="auth-modal-body">
+            <button id="googleSignupBtn" class="auth-google-btn">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
+              สมัครด้วย Google
+            </button>
+            <div class="auth-divider"><span>หรือ</span></div>
+            <div class="auth-field">
+              <label for="signupUsername">ชื่อผู้ใช้</label>
+              <input type="text" id="signupUsername" placeholder="ตั้งชื่อผู้ใช้" autocomplete="off" />
+            </div>
+            <div class="auth-field">
+              <label for="signupEmail">อีเมล <span class="auth-hint">— สำหรับกู้รหัสผ่าน</span></label>
+              <input type="email" id="signupEmail" placeholder="your@email.com" autocomplete="email" />
+            </div>
+            <div class="auth-field">
+              <label for="signupPassword">รหัสผ่าน</label>
+              <input type="password" id="signupPassword" placeholder="อย่างน้อย 6 ตัวอักษร" autocomplete="new-password" />
+            </div>
+            <div class="auth-field">
+              <label for="signupPasswordConfirm">ยืนยันรหัสผ่าน</label>
+              <input type="password" id="signupPasswordConfirm" placeholder="พิมพ์รหัสผ่านอีกครั้ง" autocomplete="new-password" />
+            </div>
+            <div id="signupError" class="auth-error"></div>
+            <button id="signupSubmit" class="auth-primary-btn">สมัครสมาชิก</button>
+            <p class="auth-terms">การสมัครถือว่ายอมรับ <a href="#">เงื่อนไขการใช้งาน</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a></p>
+          </div>
+        </div>
+
+        <!-- VIEW: FORGOT PASSWORD -->
+        <div id="authViewForgot" class="auth-view">
+          <div class="auth-modal-header">
+            <button class="auth-back-btn" id="forgotBack">← ย้อนกลับ</button>
+            <div class="auth-modal-logo">🔑</div>
+            <h2>ลืมรหัสผ่าน</h2>
+            <p class="auth-modal-sub">เราจะส่งลิงก์รีเซ็ตไปยังอีเมลของคุณ</p>
+            <button class="auth-close-btn" id="forgotClose">✕</button>
+          </div>
+          <div class="auth-modal-body">
+            <div class="auth-field">
+              <label for="forgotEmail">อีเมล</label>
+              <input type="email" id="forgotEmail" placeholder="your@email.com" autocomplete="email" />
+            </div>
+            <div id="forgotMsg" class="auth-msg"></div>
+            <button id="forgotSubmit" class="auth-primary-btn">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+          </div>
+        </div>
+
       </div>
-      <div class="signup-body">
-        <div class="login-field">
-          <label for="signupUsername">ชื่อผู้ใช้</label>
-          <input
-            type="text"
-            id="signupUsername"
-            placeholder="ตั้งชื่อผู้ใช้ของคุณ"
-            autocomplete="off"
-          />
-        </div>
-        <div class="login-field">
-          <label for="signupPassword">รหัสผ่าน</label>
-          <input
-            type="password"
-            id="signupPassword"
-            placeholder="ตั้งรหัสผ่าน"
-            autocomplete="new-password"
-          />
-        </div>
-        
-        <div class="login-field">
-          <label for="signupPasswordConfirm">ยืนยันรหัสผ่าน</label>
-          <input
-            type="password"
-            id="signupPasswordConfirm"
-            placeholder="พิมพ์รหัสผ่านอีกครั้ง"
-            autocomplete="new-password"
-          />
-        </div>
-        <div id="signupError" class="login-error"></div>
-        <button id="signupSubmit" class="primary-btn login-submit">
-          สมัครสมาชิก
-        </button>
-      </div>
-    </section>
-  </div>
+    </div>
+
+    <!-- hidden stubs so old app.js refs don't throw -->
+    <section id="loginSheet" style="display:none"></section>
+    <section id="signupSheet" style="display:none"></section>
+    </div>
 
   <!-- Floating Draggable Theme Toggle Overlay -->
   <div id="floatingThemeToggle" class="floating-theme-toggle" title="ลากเพื่อย้าย / คลิกเพื่อเปลี่ยนธีม">☀️</div>
