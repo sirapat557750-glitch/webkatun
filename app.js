@@ -1,5 +1,3 @@
-
-
 const genres = [
   {
     id: "isekai",
@@ -549,7 +547,14 @@ const allItems = genres.flatMap((g) => // สร้างอาเรย์ใ�
 
 // Review storage in-memory
 const siteReviews = []; // อาร์เรย์สำหรับเก็บรีวิวของตัวเว็บไซต์
-const animeReviews = {}; // อ็อบเจกต์เก็บรีวิวแยกตามรายเรื่อง โดยใช้ key เป็นตัวอ้างอิง
+let animeReviews = {}; // อ็อบเจกต์เก็บรีวิวแยกตามรายเรื่อง โดยใช้ key เป็นตัวอ้างอิง
+
+// โหลดรีวิวจาก Firestore ตอนเริ่มต้น
+loadAllReviews().then((data) => {
+  Object.assign(animeReviews, data);
+  renderCards();
+  renderTrending();
+});
 let favorites = new Set(); // เก็บรายการที่ถูกใจ (ใช้ Set เพื่อไม่ให้ข้อมูลซ้ำ)
 let currentView = "all"; // ตัวแปรบอกสถานะการแสดงผลปัจจุบัน (ทั้งหมด หรือ เฉพาะรายการโปรด)
 
@@ -562,9 +567,13 @@ let currentUID = null; // UID จาก Firebase
 import {
   firebaseSignup,
   firebaseLogin,
+  firebaseLoginWithGoogle,
   firebaseLogout,
+  firebaseResetPassword,
   loadFavoritesFromFirestore,
   saveFavoritesToFirestore,
+  loadAllReviews,
+  saveReviewsToFirestore,
   onAuthChange
 } from "./firebase-auth.js";
 
@@ -1238,36 +1247,55 @@ function closeDetail() { // ฟังก์ชันสำหรับปิด�
   currentDetailKey = null; // ล้างค่าคีย์ของอนิเมะที่เคยเลือกไว้ออก
 } // จบฟังก์ชัน closeDetail
 
-function openLoginSheet() { // ฟังก์ชันสำหรับเปิดหน้าต่างเข้าสู่ระบบ
-  loginError.textContent = ""; // ล้างข้อความแจ้งเตือนความผิดพลาดเก่าทิ้งไป
-  loginUsername.value = ""; // ล้างชื่อผู้ใช้ที่เคยกรอกค้างไว้
-  loginPassword.value = ""; // ล้างรหัสผ่านที่เคยกรอกค้างไว้
-  loginSheet.classList.add("open"); // แสดงหน้าต่างเข้าสู่ระบบ
-  overlay.classList.add("visible"); // แสดงแผ่นพื้นหลังโปร่งแสง
-  setTimeout(() => { // หน่วงเวลาเล็กน้อยเพื่อให้หน้าต่างปรากฏก่อนเริ่มโฟกัส
-    loginUsername.focus(); // ให้เคอร์เซอร์ไปรอที่ช่องชื่อผู้ใช้ทันทีเพื่อความสะดวก
-  }, 50); // หน่วงเวลา 50 มิลลิวินาที
-} // จบฟังก์ชัน openLoginSheet
+// ===== NEW AUTH MODAL SYSTEM =====
+const authModal = document.getElementById("authModal");
+const authViews = {
+  login: document.getElementById("authViewLogin"),
+  signup: document.getElementById("authViewSignup"),
+  forgot: document.getElementById("authViewForgot"),
+};
 
-function closeLoginSheet() { // ฟังก์ชันสำหรับปิดหน้าต่างเข้าสู่ระบบ
-  loginSheet.classList.remove("open"); // ซ่อนหน้าต่างเข้าสู่ระบบ
-} // จบฟังก์ชัน closeLoginSheet
+function showAuthView(name) {
+  Object.values(authViews).forEach(v => v && v.classList.remove("active"));
+  if (authViews[name]) authViews[name].classList.add("active");
+}
 
-function openSignupSheet() { // ฟังก์ชันสำหรับเปิดหน้าต่างสมัครสมาชิก
-  signupError.textContent = ""; // ล้างข้อความแจ้งเตือนข้อผิดพลาด
-  signupUsername.value = ""; // ล้างช่องชื่อผู้ใช้ใหม่
-  signupPassword.value = ""; // ล้างช่องรหัสผ่านใหม่
-  signupPasswordConfirm.value = ""; // ล้างช่องยืนยันรหัสผ่านใหม่
-  signupSheet.classList.add("open"); // แสดงหน้าต่างสมัครสมาชิก
-  overlay.classList.add("visible"); // แสดงแผ่นพื้นหลังโปร่งแสง
-  setTimeout(() => { // หน่วงเวลาเพื่อให้ Transition ของ CSS ทำงานเสร็จ
-    signupUsername.focus(); // ให้เคอร์เซอร์ไปรอที่ช่องชื่อผู้ใช้ใหม่
-  }, 50); // หน่วงเวลา 50 มิลลิวินาที
-} // จบฟังก์ชัน openSignupSheet
+function openAuthModal(view = "login") {
+  showAuthView(view);
+  authModal.classList.add("open");
+  // clear fields
+  if (loginError) loginError.textContent = "";
+  if (loginUsername) loginUsername.value = "";
+  if (loginPassword) loginPassword.value = "";
+  setTimeout(() => { if (loginUsername) loginUsername.focus(); }, 80);
+}
 
-function closeSignupSheet() { // ฟังก์ชันสำหรับปิดหน้าต่างสมัครสมาชิก
-  signupSheet.classList.remove("open"); // ซ่อนหน้าต่างสมัครสมาชิก
-} // จบฟังก์ชัน closeSignupSheet
+function closeAuthModal() {
+  authModal.classList.remove("open");
+}
+
+// Close on backdrop click
+authModal.addEventListener("click", (e) => {
+  if (e.target === authModal) closeAuthModal();
+});
+
+// Close buttons
+["authClose","signupClose","forgotClose"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", closeAuthModal);
+});
+
+// Back buttons
+const signupBack = document.getElementById("signupBack");
+if (signupBack) signupBack.addEventListener("click", () => showAuthView("login"));
+const forgotBack = document.getElementById("forgotBack");
+if (forgotBack) forgotBack.addEventListener("click", () => showAuthView("login"));
+
+// Shim old functions so rest of code doesn't break
+function openLoginSheet() { openAuthModal("login"); }
+function closeLoginSheet() { closeAuthModal(); }
+function openSignupSheet() { openAuthModal("signup"); }
+function closeSignupSheet() { closeAuthModal(); }
 
 
 // ฟังก์ชันสำหรับแสดงผลรีวิวของเว็บไซต์ (Render Reviews)
@@ -1275,80 +1303,106 @@ function renderSiteReviews() { // เริ่มต้นฟังก์ชั�
   // ฟังก์ชันนี้ยังคงอยู่เพื่อรองรับในอนาคต (เช่น การทำหน้า Guestbook หรือคำติชมเว็บ)
 } // จบฟังก์ชัน renderSiteReviews
 
-function renderAnimeReviews() { // ฟังก์ชันหลักสำหรับดึงรีวิวของอนิเมะแต่ละเรื่องมาแสดงผล
-  detailReviewsList.innerHTML = ""; // ล้างรายการรีวิวเก่าที่ค้างอยู่ในหน้าต่างรายละเอียดออกให้หมดก่อน
-  if (!currentDetailKey) return; // ถ้าไม่ได้ระบุว่ากำลังดูเรื่องอะไรอยู่ (ไม่มี Key) ให้หยุดทำงานทันที
-  const list = animeReviews[currentDetailKey] || []; // ดึงข้อมูลรีวิวจาก Object ตามคีย์อนิเมะ ถ้าไม่มีข้อมูลให้ใช้เป็นอาเรย์ว่าง
-  list.forEach((r, index) => { // เริ่มวนลูปเพื่อสร้างกล่องข้อความรีวิวทีละอันจากข้อมูลที่มี
-    const item = document.createElement("div"); // สร้าง Tag div เพื่อใช้เป็นคอนเทนเนอร์หลักของหนึ่งรีวิว
-    item.className = "review-item"; // กำหนด Class ชื่อ review-item เพื่อใช้จัดระเบียบและสไตล์ CSS
+const ADMIN_USERNAME = "admin"; // ชื่อ Admin
 
-    const meta = document.createElement("div"); // สร้างพื้นที่สำหรับเก็บข้อมูลส่วนหัว (ดาวและชื่อคนรีวิว)
-    meta.className = "review-meta"; // กำหนด Class เพื่อจัดวางตำแหน่งดาวและชื่อให้ดูเป็นระเบียบ
-    const stars = document.createElement("span"); // สร้าง Tag span สำหรับแสดงสัญลักษณ์ดาว
-    stars.className = "stars"; // กำหนด Class เพื่อระบุว่าเป็นส่วนการแสดงคะแนน
-    stars.textContent = "★".repeat(r.rating); // วาดรูปดาวทึบตามจำนวนคะแนนที่รีวิวไว้ (เช่น คะแนน 4 ก็วาดดาว 4 ดวง)
-    const label = document.createElement("span"); // สร้าง Tag span สำหรับแสดงชื่อผู้ใช้งานที่เขียนรีวิว
-    label.style.fontSize = "11px"; // ปรับขนาดตัวอักษรชื่อผู้ใช้ให้เล็กลงเพื่อให้ดูไม่แย่งความโดดเด่นจากเนื้อหา
-    label.style.opacity = "0.7"; // ปรับความโปร่งใสของชื่อผู้ใช้เพื่อให้ดูมีความเป็นข้อมูลรอง (Meta data)
-    label.textContent = r.user || "ผู้ใช้"; // ใส่ชื่อผู้รีวิวลงไป หากไม่มีชื่อในระบบให้แสดงคำว่า "ผู้ใช้" แทน
+function renderAnimeReviews() {
+  detailReviewsList.innerHTML = "";
+  if (!currentDetailKey) return;
+  const list = animeReviews[currentDetailKey] || [];
+  // รองรับทั้ง "admin" และ "admin@animemanga.com"
+  const isAdmin = currentUser === ADMIN_USERNAME ||
+    currentUser === `${ADMIN_USERNAME}@animemanga.com`;
 
-    meta.appendChild(stars); // นำส่วนดาวใส่เข้าไปในกล่องข้อมูลส่วนหัว
-    meta.appendChild(label); // นำชื่อผู้ใช้ใส่เข้าไปต่อท้ายดาวในกล่องข้อมูลส่วนหัว
+  list.forEach((r, index) => {
+    const item = document.createElement("div");
+    item.className = "review-item";
 
-    const textContainer = document.createElement("div"); // สร้าง Tag div สำหรับแสดงเนื้อหาข้อความที่รีวิว
-    textContainer.className = "review-text"; // กำหนด Class เพื่อใช้จัดการเว้นวรรคและขนาดตัวอักษรของเนื้อหา
-    textContainer.textContent = r.text; // ใส่ข้อความรีวิวจริงที่ผู้ใช้พิมพ์ไว้ลงไป
+    const meta = document.createElement("div");
+    meta.className = "review-meta";
+    const stars = document.createElement("span");
+    stars.className = "stars";
+    stars.textContent = "★".repeat(r.rating);
+    const label = document.createElement("span");
+    label.style.fontSize = "11px";
+    label.style.opacity = "0.7";
+    label.textContent = r.user || "ผู้ใช้";
 
-    // Review Menu (ปุ่ม 3 ขีด)
+    // แสดง badge Admin ถ้าเป็น admin
+    if (r.user === ADMIN_USERNAME) {
+      const badge = document.createElement("span");
+      badge.textContent = " 👑 Admin";
+      badge.style.fontSize = "10px";
+      badge.style.color = "#f5a623";
+      badge.style.fontWeight = "bold";
+      label.appendChild(badge);
+    }
+
+    meta.appendChild(stars);
+    meta.appendChild(label);
+
+    const textContainer = document.createElement("div");
+    textContainer.className = "review-text";
+    textContainer.textContent = r.text;
+
+    // แสดงเมนูถ้าเป็นเจ้าของรีวิว หรือเป็น Admin
+    // รองรับทั้ง format username และ email (username@animemanga.com)
+    const isOwner = currentUser &&
+      (r.user === currentUser || r.user === `${currentUser}@animemanga.com`);
+    const canDelete = isAdmin || isOwner;
+    const canEdit = isOwner; // แก้ไขได้แค่เจ้าของ
+
     const menuContainer = document.createElement("div");
     menuContainer.className = "review-menu-container";
-    
-    const menuBtn = document.createElement("button");
-    menuBtn.className = "review-menu-btn";
-    menuBtn.innerHTML = "⋮";
-    
-    const dropdown = document.createElement("div");
-    dropdown.className = "review-dropdown";
-    
-    const editOpt = document.createElement("div");
-    editOpt.className = "dropdown-item";
-    editOpt.innerHTML = "✏️ แก้ไข";
-    editOpt.onclick = (e) => {
-      e.stopPropagation();
-      dropdown.classList.remove("show");
-      startEditReview(item, textContainer, index);
-    };
 
-    const deleteOpt = document.createElement("div");
-    deleteOpt.className = "dropdown-item delete";
-    deleteOpt.innerHTML = "🗑️ ลบ";
-    deleteOpt.onclick = (e) => {
-      e.stopPropagation();
-      dropdown.classList.remove("show");
-      deleteReview(index);
-    };
+    if (canDelete || canEdit) {
+      const menuBtn = document.createElement("button");
+      menuBtn.className = "review-menu-btn";
+      menuBtn.innerHTML = "⋮";
 
-    menuBtn.onclick = (e) => {
-      e.stopPropagation();
-      // Close all other dropdowns first
-      document.querySelectorAll('.review-dropdown').forEach(d => {
-        if(d !== dropdown) d.classList.remove("show");
-      });
-      dropdown.classList.toggle("show");
-    };
+      const dropdown = document.createElement("div");
+      dropdown.className = "review-dropdown";
 
-    dropdown.appendChild(editOpt);
-    dropdown.appendChild(deleteOpt);
-    menuContainer.appendChild(menuBtn);
-    menuContainer.appendChild(dropdown);
+      if (canEdit) {
+        const editOpt = document.createElement("div");
+        editOpt.className = "dropdown-item";
+        editOpt.innerHTML = "✏️ แก้ไข";
+        editOpt.onclick = (e) => {
+          e.stopPropagation();
+          dropdown.classList.remove("show");
+          startEditReview(item, textContainer, index);
+        };
+        dropdown.appendChild(editOpt);
+      }
 
-    item.appendChild(meta); // นำข้อมูลส่วนหัว (ดาว+ชื่อ) ใส่เข้าไปในกล่องรีวิวหลัก
-    item.appendChild(textContainer); // นำข้อความรีวิวใส่ตามลงไปในกล่องรีวิวหลัก
-    item.appendChild(menuContainer); // นำเมนูใส่เข้าไปในกล่องรีวิว
+      if (canDelete) {
+        const deleteOpt = document.createElement("div");
+        deleteOpt.className = "dropdown-item delete";
+        deleteOpt.innerHTML = isAdmin && !isOwner ? "🗑️ ลบ (Admin)" : "🗑️ ลบ";
+        deleteOpt.onclick = (e) => {
+          e.stopPropagation();
+          dropdown.classList.remove("show");
+          deleteReview(index);
+        };
+        dropdown.appendChild(deleteOpt);
+      }
 
-    detailReviewsList.appendChild(item); // นำกล่องรีวิวที่สร้างสมบูรณ์แล้วไปแสดงผลในหน้าต่างรายละเอียดบนเว็บไซต์
-  }); // จบการวนลูปสร้างรีวิว
+      menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.review-dropdown').forEach(d => {
+          if (d !== dropdown) d.classList.remove("show");
+        });
+        dropdown.classList.toggle("show");
+      };
+
+      menuContainer.appendChild(menuBtn);
+      menuContainer.appendChild(dropdown);
+    }
+
+    item.appendChild(meta);
+    item.appendChild(textContainer);
+    item.appendChild(menuContainer);
+    detailReviewsList.appendChild(item);
+  });
 
 
  // อัปเดตคะแนนเฉลี่ยในหัวข้อรายละเอียดเมื่อมีรีวิวใหม่ถูกเพิ่มเข้ามา
@@ -1361,10 +1415,45 @@ function renderAnimeReviews() { // ฟังก์ชันหลักสำห
 // Helper functions for Review Edit/Delete
 function startEditReview(itemEl, textEl, index) {
   const originalText = animeReviews[currentDetailKey][index].text;
-  const originalContent = textEl.innerHTML;
+  const originalRating = animeReviews[currentDetailKey][index].rating;
   
   textEl.innerHTML = "";
   
+  // ดาวให้คะแนนตอนแก้ไข
+  let editRating = originalRating;
+  const starsRow = document.createElement("div");
+  starsRow.className = "edit-stars-row";
+  starsRow.style.cssText = "display:flex;gap:4px;margin-bottom:6px;font-size:22px;cursor:pointer;";
+  
+  const starSpans = [];
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement("span");
+    s.textContent = i <= editRating ? "★" : "☆";
+    s.style.color = i <= editRating ? "#f5a623" : "#aaa";
+    s.dataset.val = i;
+    s.onmouseenter = () => {
+      starSpans.forEach((sp, idx) => {
+        sp.textContent = idx < i ? "★" : "☆";
+        sp.style.color = idx < i ? "#f5a623" : "#aaa";
+      });
+    };
+    s.onmouseleave = () => {
+      starSpans.forEach((sp, idx) => {
+        sp.textContent = idx < editRating ? "★" : "☆";
+        sp.style.color = idx < editRating ? "#f5a623" : "#aaa";
+      });
+    };
+    s.onclick = () => {
+      editRating = i;
+      starSpans.forEach((sp, idx) => {
+        sp.textContent = idx < editRating ? "★" : "☆";
+        sp.style.color = idx < editRating ? "#f5a623" : "#aaa";
+      });
+    };
+    starSpans.push(s);
+    starsRow.appendChild(s);
+  }
+
   const textarea = document.createElement("textarea");
   textarea.className = "review-edit-area";
   textarea.value = originalText;
@@ -1375,11 +1464,13 @@ function startEditReview(itemEl, textEl, index) {
   const saveBtn = document.createElement("button");
   saveBtn.className = "edit-btn edit-btn-save";
   saveBtn.textContent = "บันทึก";
-  saveBtn.onclick = () => {
+  saveBtn.onclick = async () => {
     const newText = textarea.value.trim();
     if (newText) {
       animeReviews[currentDetailKey][index].text = newText;
+      animeReviews[currentDetailKey][index].rating = editRating;
       renderAnimeReviews();
+      await saveReviewsToFirestore(currentDetailKey, animeReviews[currentDetailKey]);
     }
   };
   
@@ -1392,16 +1483,18 @@ function startEditReview(itemEl, textEl, index) {
   
   actions.appendChild(saveBtn);
   actions.appendChild(cancelBtn);
+  textEl.appendChild(starsRow);
   textEl.appendChild(textarea);
   textEl.appendChild(actions);
   textarea.focus();
 }
 
-function deleteReview(index) {
+async function deleteReview(index) {
   if (confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรีวิวนี้?")) {
     animeReviews[currentDetailKey].splice(index, 1);
     renderAnimeReviews();
-    renderCards(); // Update star average on grid
+    renderCards();
+    await saveReviewsToFirestore(currentDetailKey, animeReviews[currentDetailKey]);
   }
 }
 
@@ -1527,7 +1620,7 @@ overlay.addEventListener("click", () => { // เมื่อผู้ใช้�
 
 loginToggle.addEventListener("click", async () => {
   if (!isLoggedIn) {
-    openLoginSheet();
+    openAuthModal("login");
   } else {
     await firebaseLogout();
     favorites = new Set();
@@ -1535,99 +1628,116 @@ loginToggle.addEventListener("click", async () => {
   }
 });
 
-loginClose.addEventListener("click", () => { // เมื่อมีการคลิกที่ปุ่มปิดหน้าต่างล็อกอิน (เครื่องหมาย X)
-  closeLoginSheet(); // เรียกใช้ฟังก์ชันเพื่อซ่อนหน้าต่างล็อกอิน
-  if ( // ตรวจสอบสถานะหน้าต่างอื่นๆ ก่อนจะเอา Overlay ออก
-    !detailSheet.classList.contains("open") && // ถ้าหน้ารายละเอียดปิดอยู่
-    !signupSheet.classList.contains("open") && // และหน้าสมัครสมาชิกปิดอยู่
-    !categoryMenu.classList.contains("open") // และเมนูหมวดหมู่ปิดอยู่
-  ) { // ถ้าทุกอย่างปิดครบ
-    overlay.classList.remove("visible"); // ให้ซ่อนแผ่นพื้นหลังโปร่งแสง (Overlay) ได้ทันที
-  } // จบเงื่อนไขการตรวจสอบ
-  // ซ่อนแผ่นพื้นหลังเฉพาะในกรณีที่ไม่มีหน้าต่างเมนูหรือป๊อปอัปอื่นเปิดค้างอยู่
-  if (
-    !categoryMenu.classList.contains("open") && // ตรวจสอบว่าเมนูหมวดหมู่ปิดอยู่
-    !detailSheet.classList.contains("open") && // ตรวจสอบว่าหน้าต่างรายละเอียดปิดอยู่
-    !signupSheet.classList.contains("open")    // ตรวจสอบว่าหน้าต่างสมัครสมาชิกปิดอยู่
-  ) {
-    overlay.classList.remove("visible"); // ถ้าปิดหมดแล้ว ให้เอาแผ่นพื้นหลังโปร่งแสงออก
-  }
-}); // จบส่วนจัดการ Overlay
+// signupOpen → switch to signup view
+const signupOpenBtn = document.getElementById("signupOpen");
+if (signupOpenBtn) signupOpenBtn.addEventListener("click", () => showAuthView("signup"));
 
-signupOpen.addEventListener("click", () => { // เมื่อผู้ใช้คลิกปุ่ม "สมัครสมาชิก" จากหน้าล็อกอิน
-  closeLoginSheet(); // ปิดหน้าต่างเข้าสู่ระบบก่อน
-  openSignupSheet(); // แล้วจึงเปิดหน้าต่างสมัครสมาชิกขึ้นมาแทน
-});
+// forgotPasswordBtn → switch to forgot view
+const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+if (forgotPasswordBtn) forgotPasswordBtn.addEventListener("click", () => showAuthView("forgot"));
 
-signupClose.addEventListener("click", () => { // เมื่อคลิกปิดหน้าสมัครสมาชิก
-  closeSignupSheet(); // เรียกฟังก์ชันซ่อนหน้าต่างสมัครสมาชิก
-  if ( // เช็คซ้ำอีกครั้งว่าต้องปิด Overlay ด้วยไหม
-    !categoryMenu.classList.contains("open") &&
-    !detailSheet.classList.contains("open") &&
-    !loginSheet.classList.contains("open")
-  ) {
-    overlay.classList.remove("visible");
-  }
-});
-
-loginSubmit.addEventListener("click", async () => {
-  const user = loginUsername.value.trim();
-  const pass = loginPassword.value.trim();
-  if (!user || !pass) {
-    loginError.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน";
-    return;
-  }
-  loginSubmit.textContent = "กำลังเข้าสู่ระบบ...";
-  loginSubmit.disabled = true;
-  try {
-    await firebaseLogin(user, pass);
-    loginError.textContent = "";
-    closeLoginSheet();
-    overlay.classList.remove("visible");
-  } catch (e) {
-    loginError.textContent = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
-  } finally {
-    loginSubmit.textContent = "เข้าสู่ระบบ";
-    loginSubmit.disabled = false;
-  }
-});
-
-signupSubmit.addEventListener("click", async () => {
-  const user = signupUsername.value.trim();
-  const pass = signupPassword.value.trim();
-  const pass2 = signupPasswordConfirm.value.trim();
-
-  if (!user || !pass || !pass2) {
-    signupError.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน";
-    return;
-  }
-  if (pass.length < 6) {
-    signupError.textContent = "รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร";
-    return;
-  }
-  if (pass !== pass2) {
-    signupError.textContent = "รหัสผ่านทั้งสองช่องไม่ตรงกัน";
-    return;
-  }
-
-  signupSubmit.textContent = "กำลังสมัคร...";
-  signupSubmit.disabled = true;
-  try {
-    await firebaseSignup(user, pass);
-    signupError.textContent = "";
-    closeSignupSheet();
-    overlay.classList.remove("visible");
-  } catch (e) {
-    if (e.code === "auth/email-already-in-use") {
-      signupError.textContent = "มีชื่อผู้ใช้นี้อยู่แล้ว กรุณาใช้ชื่ออื่น";
-    } else {
-      signupError.textContent = "สมัครไม่สำเร็จ กรุณาลองใหม่";
+// Login submit
+const loginSubmitBtn = document.getElementById("loginSubmit");
+if (loginSubmitBtn) {
+  loginSubmitBtn.addEventListener("click", async () => {
+    const username = loginUsername.value.trim();
+    const pass = loginPassword.value.trim();
+    if (!username || !pass) { loginError.textContent = "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน"; return; }
+    loginSubmitBtn.textContent = "กำลังเข้าสู่ระบบ...";
+    loginSubmitBtn.disabled = true;
+    try {
+      await firebaseLogin(username, pass);
+      loginError.textContent = "";
+      closeAuthModal();
+    } catch (e) {
+      loginError.textContent = e.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง";
+    } finally {
+      loginSubmitBtn.textContent = "เข้าสู่ระบบ";
+      loginSubmitBtn.disabled = false;
     }
-  } finally {
-    signupSubmit.textContent = "สมัครสมาชิก";
-    signupSubmit.disabled = false;
-  }
-});
+  });
+}
+
+// Google Login
+const googleLoginBtn = document.getElementById("googleLoginBtn");
+if (googleLoginBtn) {
+  googleLoginBtn.addEventListener("click", async () => {
+    try {
+      await firebaseLoginWithGoogle();
+      closeAuthModal();
+    } catch (e) {
+      if (loginError) loginError.textContent = "เข้าสู่ระบบด้วย Google ไม่สำเร็จ";
+    }
+  });
+}
+
+// Google Signup
+const googleSignupBtn = document.getElementById("googleSignupBtn");
+if (googleSignupBtn) {
+  googleSignupBtn.addEventListener("click", async () => {
+    try {
+      await firebaseLoginWithGoogle();
+      closeAuthModal();
+    } catch (e) {
+      if (signupError) signupError.textContent = "สมัครด้วย Google ไม่สำเร็จ";
+    }
+  });
+}
+
+// Signup submit
+const signupSubmitBtn = document.getElementById("signupSubmit");
+if (signupSubmitBtn) {
+  signupSubmitBtn.addEventListener("click", async () => {
+    const displayName = signupUsername.value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const pass = signupPassword.value.trim();
+    const pass2 = signupPasswordConfirm.value.trim();
+    if (!displayName || !email || !pass || !pass2) { signupError.textContent = "กรุณากรอกข้อมูลให้ครบถ้วน"; return; }
+    if (!email.includes("@")) { signupError.textContent = "รูปแบบอีเมลไม่ถูกต้อง"; return; }
+    if (pass.length < 6) { signupError.textContent = "รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร"; return; }
+    if (pass !== pass2) { signupError.textContent = "รหัสผ่านทั้งสองช่องไม่ตรงกัน"; return; }
+    signupSubmitBtn.textContent = "กำลังสมัคร...";
+    signupSubmitBtn.disabled = true;
+    try {
+      await firebaseSignup(displayName, email, pass);
+      signupError.textContent = "";
+      closeAuthModal();
+    } catch (e) {
+      if (e.code === "auth/email-already-in-use") signupError.textContent = "อีเมลนี้มีบัญชีอยู่แล้ว";
+      else if (e.code === "auth/admin-reserved") signupError.textContent = "ชื่อนี้ถูกสงวนไว้";
+      else if (e.code === "auth/invalid-email") signupError.textContent = "รูปแบบอีเมลไม่ถูกต้อง";
+      else signupError.textContent = "สมัครไม่สำเร็จ กรุณาลองใหม่";
+    } finally {
+      signupSubmitBtn.textContent = "สมัครสมาชิก";
+      signupSubmitBtn.disabled = false;
+    }
+  });
+}
+
+// Forgot password submit
+const forgotSubmitBtn = document.getElementById("forgotSubmit");
+const forgotEmail = document.getElementById("forgotEmail");
+const forgotMsg = document.getElementById("forgotMsg");
+if (forgotSubmitBtn) {
+  forgotSubmitBtn.addEventListener("click", async () => {
+    const email = forgotEmail.value.trim();
+    if (!email) { forgotMsg.textContent = "กรุณากรอกอีเมล"; forgotMsg.className = "auth-msg error"; return; }
+    forgotSubmitBtn.textContent = "กำลังส่ง...";
+    forgotSubmitBtn.disabled = true;
+    try {
+      await firebaseResetPassword(email);
+      forgotMsg.textContent = "✅ ส่งลิงก์รีเซ็ตไปที่อีเมลแล้ว กรุณาตรวจสอบกล่องจดหมาย";
+      forgotMsg.className = "auth-msg success";
+      forgotEmail.value = "";
+    } catch (e) {
+      forgotMsg.textContent = "ไม่พบอีเมลนี้ในระบบ หรือเกิดข้อผิดพลาด";
+      forgotMsg.className = "auth-msg error";
+    } finally {
+      forgotSubmitBtn.textContent = "ส่งลิงก์รีเซ็ตรหัสผ่าน";
+      forgotSubmitBtn.disabled = false;
+    }
+  });
+}
 
 // จัดการเหตุการณ์การคลิกภายในการ์ดอนิเมะทั้งหมด
 cardsContainer.addEventListener("click", (e) => { // เมื่อมีการคลิกเกิดขึ้นภายในพื้นที่แสดงการ์ด (Container)
@@ -1666,32 +1776,33 @@ trendingNext.addEventListener("click", () => { // เมื่อมีการ
 }); // จบการจัดการคลิกปุ่มถัดไป
 
 // จัดการเหตุการณ์เมื่อคลิกปุ่ม "ส่งรีวิว" ในหน้ารายละเอียดอนิเมะ
-detailReviewSubmit.addEventListener("click", () => { // เมื่อผู้ใช้กดปุ่มส่งข้อความรีวิว
-  if (!isLoggedIn) { // ตรวจสอบก่อนว่าผู้ใช้ได้ล็อกอินเข้าสู่ระบบแล้วหรือยัง
-    openLoginSheet(); // ถ้ายังไม่ล็อกอิน ให้เด้งหน้าต่าง Login ขึ้นมาขัดจังหวะทันที
-    return; // หยุดการทำงานของฟังก์ชันส่งรีวิวไว้แค่นี้
+detailReviewSubmit.addEventListener("click", async () => {
+  if (!isLoggedIn) {
+    openLoginSheet();
+    return;
   }
 
-  const text = detailReviewInput.value.trim(); // ดึงข้อความรีวิวออกมาและตัดช่องว่างที่เผลอพิมพ์เกินมาทิ้ง
-  // ตรวจสอบความพร้อม: ต้องมีข้อความ, มีการเลือกดาว (ไม่เป็น 0), และต้องรู้ว่ารีวิวเรื่องอะไรอยู่
-  if (!text || !animeRatingValue || !currentDetailKey) return; 
+  const text = detailReviewInput.value.trim();
+  if (!text || !animeRatingValue || !currentDetailKey) return;
 
-  if (!animeReviews[currentDetailKey]) { // ถ้าอนิเมะเรื่องนี้ยังไม่เคยมีใครมารีวิวเลย (อาเรย์ยังไม่ถูกสร้าง)
-    animeReviews[currentDetailKey] = []; // ให้สร้างอาเรย์ว่างๆ มารองรับข้อมูลรีวิวใหม่
+  if (!animeReviews[currentDetailKey]) {
+    animeReviews[currentDetailKey] = [];
   }
-  
-  // เพิ่มข้อมูลรีวิวใหม่เข้าไปที่ "ตำแหน่งแรก" ของรายการ (ใช้ unshift เพื่อให้รีวิวใหม่ล่าสุดอยู่บนสุด)
+
   animeReviews[currentDetailKey].unshift({
-    rating: animeRatingValue, // คะแนนดาวที่ผู้ใช้เลือก (จากตัวแปรโกลบอลที่อัปเดตโดย controller)
-    text, // ข้อความที่ผู้ใช้พิมพ์
-    user: currentUser || "ผู้ใช้", // ชื่อผู้ใช้งานปัจจุบัน (ถ้าไม่มีชื่อให้ใส่ว่า "ผู้ใช้")
+    rating: animeRatingValue,
+    text,
+    user: currentUser || "ผู้ใช้",
   });
 
-  detailReviewInput.value = ""; // ล้างช่องพิมพ์ข้อความให้ว่างเปล่าเพื่อรอการรีวิวครั้งต่อไป
-  detailRatingController(0); // รีเซ็ตตัวควบคุมดาวให้กลับไปเป็น 0 ดวง (ไม่สว่าง)
-  renderAnimeReviews(); // สั่งให้วาดรายการรีวิวในหน้ารายละเอียดใหม่ทันทีเพื่อให้เห็นข้อความตัวเอง
-  renderCards(); // อัปเดตการ์ดในหน้าหลักด้วย เพราะคะแนนดาวเฉลี่ยบนการ์ดอาจจะเปลี่ยนไปแล้ว
-}); // จบเหตุการณ์ส่งรีวิว
+  detailReviewInput.value = "";
+  detailRatingController(0);
+  renderAnimeReviews();
+  renderCards();
+
+  // บันทึกลง Firestore
+  await saveReviewsToFirestore(currentDetailKey, animeReviews[currentDetailKey]);
+});
 
 // เพิ่มเหตุการณ์เมื่อคลิกปุ่มกากบาท (X) ในหน้ารายละเอียด เพื่อสั่งปิดหน้าต่างนั้น
 detailClose.addEventListener("click", () => {
@@ -1831,4 +1942,3 @@ startTrendingAuto();  // เริ่มระบบเลื่อนสไล�
   // ผูกเหตุการณ์คลิก (Click Event)
   el.addEventListener("click", onClick); // ตั้งค่าให้ปุ่มสลับธีมเมื่อมีการคลิกปกติ
 })(); // จบการทำงานของฟังก์ชันเริ่มต้นระบบปุ่มลอย (Self-invoking function)
-
