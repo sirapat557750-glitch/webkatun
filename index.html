@@ -28,9 +28,11 @@
       <div class="top-bar-right">
         <div class="search-container">
           <input
-            type="text"
+            type="search"
             id="searchInput"
             placeholder="ค้นหาตามชื่อเรื่องหรือแนว..."
+            enterkeyhint="search"
+            inputmode="search"
           />
           <button id="searchBtn" class="search-btn" aria-label="ค้นหา">
             🔍
@@ -344,11 +346,15 @@
           </div>
           <div class="auth-modal-body">
             <div class="auth-field">
-              <label for="forgotEmail">อีเมล</label>
-              <input type="email" id="forgotEmail" placeholder="your@email.com" autocomplete="email" />
+              <label for="forgotEmail">ชื่อผู้ใช้ หรือ อีเมล</label>
+              <input type="text" id="forgotEmail" placeholder="ชื่อผู้ใช้ หรือ your@email.com" autocomplete="off" />
             </div>
             <div id="forgotMsg" class="auth-msg"></div>
             <button id="forgotSubmit" class="auth-primary-btn">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+            <div class="forgot-notice">
+              <span class="forgot-notice-icon">📬</span>
+              <p>หากไม่เห็นอีเมลใน inbox<br/>ลองตรวจสอบโฟลเดอร์ <strong>สแปม (Spam)</strong> ด้วยนะ</p>
+            </div>
           </div>
         </div>
 
