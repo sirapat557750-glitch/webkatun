@@ -83,7 +83,7 @@ async function lookupEmailByUsername(username) {
 }
 
 // ====================================================
-// ฟังก์ชัน Login ด้วย Username/Password
+// ฟังก์ชัน Login ด้วย Email/Password
 // ====================================================
 export async function firebaseLogin(username, password) {
   const email = await lookupEmailByUsername(username);
@@ -114,9 +114,13 @@ export async function firebaseLoginWithGoogle() {
 }
 
 // ====================================================
-// ส่งอีเมลรีเซ็ตรหัสผ่าน
+// ส่งอีเมลรีเซ็ตรหัสผ่าน (รับ username หรือ email ก็ได้)
 // ====================================================
-export async function firebaseResetPassword(email) {
+export async function firebaseResetPassword(usernameOrEmail) {
+  let email = usernameOrEmail;
+  if (!usernameOrEmail.includes("@")) {
+    email = await lookupEmailByUsername(usernameOrEmail);
+  }
   await sendPasswordResetEmail(auth, email);
 }
 
