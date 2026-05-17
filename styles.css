@@ -2516,8 +2516,6 @@ body.theme-dark .footer-list a:hover {
 /* ============================================================
    AUTH MODAL — redesigned unified modal (login/signup/forgot)
    ============================================================ */
-
-/* Backdrop */
 .auth-modal {
   display: none;
   position: fixed;
@@ -2531,15 +2529,11 @@ body.theme-dark .footer-list a:hover {
   padding: 16px;
   animation: authFadeIn 0.2s ease;
 }
-.auth-modal.open {
-  display: flex;
-}
+.auth-modal.open { display: flex; }
 @keyframes authFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-/* Card */
 .auth-modal-card {
   background: #0f172a;
   border: 1px solid rgba(255,255,255,0.08);
@@ -2553,17 +2547,12 @@ body.theme-dark .footer-list a:hover {
   scrollbar-width: none;
 }
 .auth-modal-card::-webkit-scrollbar { display: none; }
-
 @keyframes authSlideUp {
   from { transform: translateY(30px) scale(0.97); opacity: 0; }
   to   { transform: translateY(0) scale(1); opacity: 1; }
 }
-
-/* Views — only .active shows */
 .auth-view { display: none; }
 .auth-view.active { display: block; }
-
-/* Header */
 .auth-modal-header {
   position: relative;
   text-align: center;
@@ -2586,8 +2575,6 @@ body.theme-dark .footer-list a:hover {
   font-size: 13px;
   color: #94a3b8;
 }
-
-/* Close button */
 .auth-close-btn {
   position: absolute;
   top: 16px;
@@ -2605,12 +2592,7 @@ body.theme-dark .footer-list a:hover {
   justify-content: center;
   transition: background 0.2s, color 0.2s;
 }
-.auth-close-btn:hover {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-}
-
-/* Back button */
+.auth-close-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .auth-back-btn {
   position: absolute;
   top: 16px;
@@ -2629,20 +2611,13 @@ body.theme-dark .footer-list a:hover {
   gap: 4px;
   transition: background 0.2s, color 0.2s;
 }
-.auth-back-btn:hover {
-  background: rgba(255,255,255,0.12);
-  color: #fff;
-}
-
-/* Body */
+.auth-back-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .auth-modal-body {
   padding: 20px 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
-/* Google button */
 .auth-google-btn {
   display: flex;
   align-items: center;
@@ -2659,14 +2634,8 @@ body.theme-dark .footer-list a:hover {
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, transform 0.15s;
 }
-.auth-google-btn:hover {
-  background: rgba(255,255,255,0.1);
-  border-color: rgba(255,255,255,0.25);
-  transform: translateY(-1px);
-}
+.auth-google-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
 .auth-google-btn:active { transform: translateY(0); }
-
-/* Divider */
 .auth-divider {
   display: flex;
   align-items: center;
@@ -2676,15 +2645,12 @@ body.theme-dark .footer-list a:hover {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-.auth-divider::before,
-.auth-divider::after {
+.auth-divider::before, .auth-divider::after {
   content: "";
   flex: 1;
   height: 1px;
   background: rgba(255,255,255,0.07);
 }
-
-/* Field */
 .auth-field {
   display: flex;
   flex-direction: column;
@@ -2722,8 +2688,6 @@ body.theme-dark .footer-list a:hover {
   background: rgba(225,29,72,0.05);
   box-shadow: 0 0 0 3px rgba(225,29,72,0.15);
 }
-
-/* Primary button */
 .auth-primary-btn {
   width: 100%;
   padding: 12px;
@@ -2738,19 +2702,9 @@ body.theme-dark .footer-list a:hover {
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
   box-shadow: 0 4px 14px rgba(225,29,72,0.4);
 }
-.auth-primary-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(225,29,72,0.5);
-}
+.auth-primary-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(225,29,72,0.5); }
 .auth-primary-btn:active { transform: translateY(0); }
-.auth-primary-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Error */
+.auth-primary-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .auth-error {
   font-size: 12px;
   color: #f87171;
@@ -2761,12 +2715,7 @@ body.theme-dark .footer-list a:hover {
   overflow: hidden;
   transition: max-height 0.2s, padding 0.2s;
 }
-.auth-error:not(:empty) {
-  padding: 8px 12px;
-  max-height: 60px;
-}
-
-/* Message (forgot) */
+.auth-error:not(:empty) { padding: 8px 12px; max-height: 60px; }
 .auth-msg {
   font-size: 13px;
   border-radius: 8px;
@@ -2775,14 +2724,9 @@ body.theme-dark .footer-list a:hover {
   overflow: hidden;
   transition: max-height 0.2s, padding 0.2s;
 }
-.auth-msg:not(:empty) {
-  padding: 10px 14px;
-  max-height: 80px;
-}
+.auth-msg:not(:empty) { padding: 10px 14px; max-height: 80px; }
 .auth-msg.success { background: rgba(52,211,153,0.12); color: #34d399; }
 .auth-msg.error   { background: rgba(248,113,113,0.12); color: #f87171; }
-
-/* Footer links row */
 .auth-footer-links {
   display: flex;
   justify-content: space-between;
@@ -2800,8 +2744,6 @@ body.theme-dark .footer-list a:hover {
 .auth-text-btn:hover { color: #94a3b8; }
 .auth-text-btn--accent { color: #e11d48; font-weight: 600; }
 .auth-text-btn--accent:hover { color: #fb7185; }
-
-/* Terms */
 .auth-terms {
   font-size: 11px;
   color: #475569;
@@ -2812,40 +2754,39 @@ body.theme-dark .footer-list a:hover {
 .auth-terms a { color: #64748b; text-decoration: underline; }
 .auth-terms a:hover { color: #94a3b8; }
 
-/* Light theme overrides */
-body.theme-light .auth-modal-card {
-  background: #ffffff;
-  border-color: rgba(0,0,0,0.08);
-  box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+/* Forgot notice */
+.forgot-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 12px 14px;
 }
+.forgot-notice-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.forgot-notice p { margin: 0; font-size: 12px; color: #64748b; line-height: 1.6; }
+.forgot-notice p strong { color: #94a3b8; font-weight: 600; }
+
+/* Light theme */
+body.theme-light .auth-modal-card { background: #ffffff; border-color: rgba(0,0,0,0.08); box-shadow: 0 25px 60px rgba(0,0,0,0.18); }
 body.theme-light .auth-modal-header { border-bottom-color: #f1f5f9; }
 body.theme-light .auth-modal-header h2 { color: #0f172a; }
 body.theme-light .auth-modal-sub { color: #64748b; }
-body.theme-light .auth-close-btn,
-body.theme-light .auth-back-btn {
-  background: #f1f5f9;
-  color: #64748b;
-}
-body.theme-light .auth-close-btn:hover,
-body.theme-light .auth-back-btn:hover { background: #e2e8f0; color: #0f172a; }
-body.theme-light .auth-google-btn {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #0f172a;
-}
+body.theme-light .auth-close-btn, body.theme-light .auth-back-btn { background: #f1f5f9; color: #64748b; }
+body.theme-light .auth-close-btn:hover, body.theme-light .auth-back-btn:hover { background: #e2e8f0; color: #0f172a; }
+body.theme-light .auth-google-btn { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
 body.theme-light .auth-google-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
 body.theme-light .auth-divider { color: #cbd5e1; }
-body.theme-light .auth-divider::before,
-body.theme-light .auth-divider::after { background: #e2e8f0; }
+body.theme-light .auth-divider::before, body.theme-light .auth-divider::after { background: #e2e8f0; }
 body.theme-light .auth-field label { color: #94a3b8; }
-body.theme-light .auth-field input {
-  background: #f8fafc;
-  border-color: #e2e8f0;
-  color: #0f172a;
-}
+body.theme-light .auth-field input { background: #f8fafc; border-color: #e2e8f0; color: #0f172a; }
 body.theme-light .auth-field input::placeholder { color: #94a3b8; }
 body.theme-light .auth-field input:focus { border-color: #e11d48; background: #fff5f7; }
 body.theme-light .auth-text-btn { color: #94a3b8; }
 body.theme-light .auth-text-btn:hover { color: #64748b; }
 body.theme-light .auth-terms { color: #94a3b8; }
 body.theme-light .auth-terms a { color: #64748b; }
+body.theme-light .forgot-notice { background: #f8fafc; border-color: #e2e8f0; }
+body.theme-light .forgot-notice p { color: #94a3b8; }
+body.theme-light .forgot-notice p strong { color: #64748b; }
