@@ -656,28 +656,7 @@ async function saveFavoritesForUser(uid, favoritesSet) {
   await saveFavoritesToFirestore(uid, favoritesSet);
 }
 
-// ติดตามสถานะ login แบบ realtime
-onAuthChange(async (user) => {
-  if (user) {
-    isLoggedIn = true;
-    currentUser = user.displayName || user.email;
-    currentUID = user.uid;
-    favorites = await loadFavoritesForUser(currentUID);
-    loginToggle.textContent = `${currentUser} (ออกจากระบบ)`;
-    loginToggle.classList.add("logged-in");
-    renderCards();
-  } else {
-    isLoggedIn = false;
-    currentUser = null;
-    currentUID = null;
-    favorites = new Set();
-    if (loginToggle) {
-      loginToggle.textContent = "เข้าสู่ระบบ";
-      loginToggle.classList.remove("logged-in");
-    }
-    renderCards();
-  }
-});
+// onAuthChange จะถูกเรียกหลัง DOM elements พร้อมแล้ว (ด้านล่าง)
 
 // DOM elements (การดึงองค์ประกอบต่างๆ จากหน้า HTML มาเก็บในตัวแปร)
 const cardsContainer = document.getElementById("cardsContainer"); // พื้นที่แสดงการ์ดอนิเมะ
@@ -702,8 +681,8 @@ const trendingDots = document.getElementById("trendingDots"); // จุดบอ
 
 // Login elements (องค์ประกอบหน้าล็อกอิน)
 const loginToggle = document.getElementById("loginToggle"); // ปุ่มเปิดหน้าล็อกอิน
-const loginSheet = document.getElementById("loginSheet"); // หน้าต่าง (Sheet) ล็อกอิน
-const loginClose = document.getElementById("loginClose"); // ปุ่มปิดหน้าล็อกอิน
+const loginSheet = document.getElementById("authModal"); // authModal แทน loginSheet
+const loginClose = document.getElementById("authClose"); // authClose แทน loginClose
 const loginSubmit = document.getElementById("loginSubmit"); // ปุ่มกดยืนยันการล็อกอิน
 const loginUsername = document.getElementById("loginUsername"); // ช่องกรอกชื่อผู้ใช้สำหรับล็อกอิน
 const loginPassword = document.getElementById("loginPassword"); // ช่องกรอกรหัสผ่านสำหรับล็อกอิน
@@ -711,7 +690,7 @@ const loginError = document.getElementById("loginError"); // ข้อควา�
 const signupOpen = document.getElementById("signupOpen"); // ปุ่มสำหรับสลับไปหน้าสมัครสมาชิก
 
 // Signup elements (องค์ประกอบหน้าสมัครสมาชิก)
-const signupSheet = document.getElementById("signupSheet"); // หน้าต่างสมัครสมาชิก
+const signupSheet = document.getElementById("authModal"); // authModal แทน signupSheet
 const signupClose = document.getElementById("signupClose"); // ปุ่มปิดหน้าสมัครสมาชิก
 const signupSubmit = document.getElementById("signupSubmit"); // ปุ่มกดยืนยันการสมัคร
 const signupUsername = document.getElementById("signupUsername"); // ช่องกรอกชื่อผู้ใช้ใหม่
@@ -747,6 +726,29 @@ const detailCharactersContainer = document.getElementById("detailCharactersConta
 let currentCategoryId = "all"; // เก็บสถานะไอดีหมวดหมู่ที่เลือกอยู่ (ค่าเริ่มต้นคือ ทั้งหมด)
 let currentSearch = ""; // เก็บข้อความที่กำลังใช้ค้นหาอยู่
 let currentDetailKey = null; // เก็บค่าคีย์ของอนิเมะที่กำลังเปิดดูรายละเอียดอยู่ในขณะนั้น
+
+// ติดตามสถานะ login แบบ realtime (วางไว้หลัง DOM elements ทั้งหมด)
+onAuthChange(async (user) => {
+  if (user) {
+    isLoggedIn = true;
+    currentUser = user.displayName || user.email;
+    currentUID = user.uid;
+    favorites = await loadFavoritesForUser(currentUID);
+    loginToggle.textContent = `${currentUser} (ออกจากระบบ)`;
+    loginToggle.classList.add("logged-in");
+    renderCards();
+  } else {
+    isLoggedIn = false;
+    currentUser = null;
+    currentUID = null;
+    favorites = new Set();
+    if (loginToggle) {
+      loginToggle.textContent = "เข้าสู่ระบบ";
+      loginToggle.classList.remove("logged-in");
+    }
+    renderCards();
+  }
+});
 
 
 // Recommended / featured state
@@ -922,17 +924,18 @@ function getFilteredItems() { // ฟังก์ชันสำหรับก�
 
     const MIN_SCORE = 40;
     base = base
-      .map((it) => {
-        const score = Math.max(
+      .map((it) => ({
+        item: it,
+        score: Math.max(
           fuzzyScore(it.title, q),
           fuzzyScore(it.titleTH || "", q),
           fuzzyScore(it.description, q),
           fuzzyScore(it.genreName, q)
-        );
-        return { ...it, _score: score };
-      })
-      .filter((it) => it._score >= MIN_SCORE)
-      .sort((a, b) => b._score - a._score);
+        )
+      }))
+      .filter((x) => x.score >= MIN_SCORE)
+      .sort((a, b) => b.score - a.score)
+      .map((x) => x.item);
 
     return base;
   } // จบเงื่อนไขค้นหา
@@ -1147,8 +1150,8 @@ function closeCategoryMenu() { // ฟังก์ชันสำหรับป�
   categoryMenu.classList.remove("open"); // เอาคลาส open ออกเพื่อซ่อนเมนู
   if ( // ตรวจสอบว่าหน้าต่างอื่นๆ ปิดอยู่ทั้งหมดหรือไม่ ก่อนจะเอาแผ่น Overlay ออก
     !detailSheet.classList.contains("open") && // ถ้าหน้ารายละเอียดปิดอยู่
-    !loginSheet.classList.contains("open") && // และหน้าล็อกอินปิดอยู่
-    !signupSheet.classList.contains("open") && // และหน้าสมัครสมาชิกปิดอยู่
+    !document.getElementById("authModal").classList.contains("open") && // และหน้าล็อกอินปิดอยู่
+    !document.getElementById("authModal").classList.contains("open") && // และหน้าสมัครสมาชิกปิดอยู่
     !favoritesMenu.classList.contains("open") // และหน้าเมนูรายการโปรดปิดอยู่
   ) { // ถ้าทุกอย่างปิดหมดแล้ว
     overlay.classList.remove("visible"); // ให้ซ่อนแผ่นพื้นหลังโปร่งแสงได้
@@ -1165,8 +1168,8 @@ function closeFavoritesMenu() { // ฟังก์ชันสำหรับป
   favoritesMenu.classList.remove("open"); // ซ่อนเมนูรายการโปรด
   if ( // เช็คว่ามีหน้าต่างอื่นเปิดค้างไว้ไหมก่อนจะปิดแผ่น Overlay
     !detailSheet.classList.contains("open") && // หน้ารายละเอียดปิดอยู่หรือไม่
-    !loginSheet.classList.contains("open") && // หน้าล็อกอินปิดอยู่หรือไม่
-    !signupSheet.classList.contains("open") && // หน้าสมัครสมาชิกปิดอยู่หรือไม่
+    !document.getElementById("authModal").classList.contains("open") && // หน้าล็อกอินปิดอยู่หรือไม่
+    !document.getElementById("authModal").classList.contains("open") && // หน้าสมัครสมาชิกปิดอยู่หรือไม่
     !categoryMenu.classList.contains("open") // เมนูหมวดหมู่ปิดอยู่หรือไม่
   ) { // ถ้าปิดหมดทุกอย่าง
     overlay.classList.remove("visible"); // ให้ซ่อนแผ่นพื้นหลังโปร่งแสงได้
@@ -1332,7 +1335,7 @@ function openDetail(key) { // เริ่มการทำงานโดย�
   } // จบการแสดงผลคะแนน
 
   detailReviewInput.value = ""; // ล้างข้อความในช่องพิมพ์รีวิวเก่าออกให้หมดทุกครั้งที่เปิดเรื่องใหม่
-  detailRatingController(0); // รีเซ็ตการเลือกดาวให้กลับไปที่ 0 (ใช้ฟังก์ชันที่ Return มาจาก setupRatingStars)
+  if (typeof detailRatingController === "function") detailRatingController(0); // รีเซ็ตการเลือกดาวให้กลับไปที่ 0
 
   renderAnimeReviews(); // เรียกฟังก์ชันแสดงผลรายการคอมเมนต์รีวิวของอนิเมะเรื่องนี้
 
@@ -1346,36 +1349,38 @@ function closeDetail() { // ฟังก์ชันสำหรับปิด�
   currentDetailKey = null; // ล้างค่าคีย์ของอนิเมะที่เคยเลือกไว้ออก
 } // จบฟังก์ชัน closeDetail
 
-function openLoginSheet() { // ฟังก์ชันสำหรับเปิดหน้าต่างเข้าสู่ระบบ
-  loginError.textContent = ""; // ล้างข้อความแจ้งเตือนความผิดพลาดเก่าทิ้งไป
-  loginUsername.value = ""; // ล้างชื่อผู้ใช้ที่เคยกรอกค้างไว้
-  loginPassword.value = ""; // ล้างรหัสผ่านที่เคยกรอกค้างไว้
-  loginSheet.classList.add("open"); // แสดงหน้าต่างเข้าสู่ระบบ
-  overlay.classList.add("visible"); // แสดงแผ่นพื้นหลังโปร่งแสง
-  setTimeout(() => { // หน่วงเวลาเล็กน้อยเพื่อให้หน้าต่างปรากฏก่อนเริ่มโฟกัส
-    loginUsername.focus(); // ให้เคอร์เซอร์ไปรอที่ช่องชื่อผู้ใช้ทันทีเพื่อความสะดวก
-  }, 50); // หน่วงเวลา 50 มิลลิวินาที
-} // จบฟังก์ชัน openLoginSheet
+function openLoginSheet() {
+  loginError.textContent = "";
+  loginUsername.value = "";
+  loginPassword.value = "";
+  document.getElementById("authModal").classList.add("open");
+  document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+  document.getElementById("authViewLogin").classList.add("active");
+  overlay.classList.add("visible");
+  setTimeout(() => { loginUsername.focus(); }, 50);
+}
 
-function closeLoginSheet() { // ฟังก์ชันสำหรับปิดหน้าต่างเข้าสู่ระบบ
-  loginSheet.classList.remove("open"); // ซ่อนหน้าต่างเข้าสู่ระบบ
-} // จบฟังก์ชัน closeLoginSheet
+function closeLoginSheet() {
+  document.getElementById("authModal").classList.remove("open");
+  overlay.classList.remove("visible");
+}
 
-function openSignupSheet() { // ฟังก์ชันสำหรับเปิดหน้าต่างสมัครสมาชิก
-  signupError.textContent = ""; // ล้างข้อความแจ้งเตือนข้อผิดพลาด
-  signupUsername.value = ""; // ล้างช่องชื่อผู้ใช้ใหม่
-  signupPassword.value = ""; // ล้างช่องรหัสผ่านใหม่
-  signupPasswordConfirm.value = ""; // ล้างช่องยืนยันรหัสผ่านใหม่
-  signupSheet.classList.add("open"); // แสดงหน้าต่างสมัครสมาชิก
-  overlay.classList.add("visible"); // แสดงแผ่นพื้นหลังโปร่งแสง
-  setTimeout(() => { // หน่วงเวลาเพื่อให้ Transition ของ CSS ทำงานเสร็จ
-    signupUsername.focus(); // ให้เคอร์เซอร์ไปรอที่ช่องชื่อผู้ใช้ใหม่
-  }, 50); // หน่วงเวลา 50 มิลลิวินาที
-} // จบฟังก์ชัน openSignupSheet
+function openSignupSheet() {
+  signupError.textContent = "";
+  signupUsername.value = "";
+  signupPassword.value = "";
+  signupPasswordConfirm.value = "";
+  document.getElementById("authModal").classList.add("open");
+  document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+  document.getElementById("authViewSignup").classList.add("active");
+  overlay.classList.add("visible");
+  setTimeout(() => { signupUsername.focus(); }, 50);
+}
 
-function closeSignupSheet() { // ฟังก์ชันสำหรับปิดหน้าต่างสมัครสมาชิก
-  signupSheet.classList.remove("open"); // ซ่อนหน้าต่างสมัครสมาชิก
-} // จบฟังก์ชัน closeSignupSheet
+function closeSignupSheet() {
+  document.getElementById("authModal").classList.remove("open");
+  overlay.classList.remove("visible");
+}
 
 
 // ฟังก์ชันสำหรับแสดงผลรีวิวของเว็บไซต์ (Render Reviews)
@@ -1712,7 +1717,7 @@ loginClose.addEventListener("click", () => { // เมื่อมีการ�
   closeLoginSheet(); // เรียกใช้ฟังก์ชันเพื่อซ่อนหน้าต่างล็อกอิน
   if ( // ตรวจสอบสถานะหน้าต่างอื่นๆ ก่อนจะเอา Overlay ออก
     !detailSheet.classList.contains("open") && // ถ้าหน้ารายละเอียดปิดอยู่
-    !signupSheet.classList.contains("open") && // และหน้าสมัครสมาชิกปิดอยู่
+    !document.getElementById("authModal").classList.contains("open") && // และหน้าสมัครสมาชิกปิดอยู่
     !categoryMenu.classList.contains("open") // และเมนูหมวดหมู่ปิดอยู่
   ) { // ถ้าทุกอย่างปิดครบ
     overlay.classList.remove("visible"); // ให้ซ่อนแผ่นพื้นหลังโปร่งแสง (Overlay) ได้ทันที
@@ -1721,23 +1726,38 @@ loginClose.addEventListener("click", () => { // เมื่อมีการ�
   if (
     !categoryMenu.classList.contains("open") && // ตรวจสอบว่าเมนูหมวดหมู่ปิดอยู่
     !detailSheet.classList.contains("open") && // ตรวจสอบว่าหน้าต่างรายละเอียดปิดอยู่
-    !signupSheet.classList.contains("open")    // ตรวจสอบว่าหน้าต่างสมัครสมาชิกปิดอยู่
+    !document.getElementById("authModal").classList.contains("open")    // ตรวจสอบว่าหน้าต่างสมัครสมาชิกปิดอยู่
   ) {
     overlay.classList.remove("visible"); // ถ้าปิดหมดแล้ว ให้เอาแผ่นพื้นหลังโปร่งแสงออก
   }
 }); // จบส่วนจัดการ Overlay
 
-signupOpen.addEventListener("click", () => { // เมื่อผู้ใช้คลิกปุ่ม "สมัครสมาชิก" จากหน้าล็อกอิน
-  closeLoginSheet(); // ปิดหน้าต่างเข้าสู่ระบบก่อน
-  openSignupSheet(); // แล้วจึงเปิดหน้าต่างสมัครสมาชิกขึ้นมาแทน
+signupOpen.addEventListener("click", () => {
+  closeLoginSheet();
+  openSignupSheet();
 });
+
+// signupBack - กลับไป login view
+const signupBack = document.getElementById("signupBack");
+if (signupBack) {
+  signupBack.addEventListener("click", () => {
+    document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+    document.getElementById("authViewLogin").classList.add("active");
+  });
+}
+
+// forgotClose
+const forgotClose = document.getElementById("forgotClose");
+if (forgotClose) {
+  forgotClose.addEventListener("click", () => { closeLoginSheet(); });
+}
 
 signupClose.addEventListener("click", () => { // เมื่อคลิกปิดหน้าสมัครสมาชิก
   closeSignupSheet(); // เรียกฟังก์ชันซ่อนหน้าต่างสมัครสมาชิก
   if ( // เช็คซ้ำอีกครั้งว่าต้องปิด Overlay ด้วยไหม
     !categoryMenu.classList.contains("open") &&
     !detailSheet.classList.contains("open") &&
-    !loginSheet.classList.contains("open")
+    !document.getElementById("authModal").classList.contains("open")
   ) {
     overlay.classList.remove("visible");
   }
@@ -1773,32 +1793,19 @@ const forgotSubmit = document.getElementById("forgotSubmit");
 const forgotEmail = document.getElementById("forgotEmail");
 const forgotMsg = document.getElementById("forgotMsg");
 
-const loginMainFields = () => [
-  document.querySelector(".login-body .login-field"),
-  document.querySelector(".login-body .login-field:last-of-type"),
-  document.getElementById("loginError"),
-  document.getElementById("loginSubmit"),
-  document.getElementById("forgotPasswordBtn"),
-  document.querySelector(".login-divider"),
-  document.getElementById("googleLoginBtn"),
-  document.getElementById("signupOpen"),
-];
-
 if (forgotPasswordBtn) {
   forgotPasswordBtn.addEventListener("click", () => {
-    // ซ่อน fields หลัก แสดง forgot panel
-    document.querySelectorAll(".login-body > :not(#forgotPanel)").forEach(el => el.style.display = "none");
-    forgotPanel.style.display = "block";
-    forgotEmail.value = "";
-    forgotMsg.textContent = "";
-    forgotEmail.focus();
+    document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+    document.getElementById("authViewForgot").classList.add("active");
+    if (forgotEmail) { forgotEmail.value = ""; forgotEmail.focus(); }
+    if (forgotMsg) forgotMsg.textContent = "";
   });
 }
 
 if (forgotBack) {
   forgotBack.addEventListener("click", () => {
-    forgotPanel.style.display = "none";
-    document.querySelectorAll(".login-body > :not(#forgotPanel)").forEach(el => el.style.display = "");
+    document.querySelectorAll(".auth-view").forEach(v => v.classList.remove("active"));
+    document.getElementById("authViewLogin").classList.add("active");
   });
 }
 
